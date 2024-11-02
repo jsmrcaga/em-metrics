@@ -225,7 +225,8 @@ describe('Deployments', () => {
 					payload: {
 						create_if_not_exists: true,
 						project_id: 'project-45',
-						first_commit_at: "2024-01-01T00:00:00.000Z"
+						first_commit_at: '2024-01-01T00:00:00.000Z',
+						deploy_start_at: '2024-01-01T00:00:00.000Z'
 					}
 				}).then(response => {
 					expect(create_stub.called).to.be.false;
