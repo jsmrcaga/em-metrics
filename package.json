@@ -1,0 +1,32 @@
+{
+  "name": "em-metrics",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "mocha": "mocha --file ./test/setup.js --exit --recursive ./test/**/*.test.js",
+    "test": "docker compose run --rm app npm run mocha",
+    "build": "docker compose build app --no-cache",
+    "s:migrate": "sqlite-migrate migrate -m ./src/models/migrations -f ./db.sqlite",
+    "s:migrate:plan": "sqlite-migrate plan -m ./src/models/migrations -f ./db.sqlite",
+    "migrate": "docker compose run --rm app npm run s:migrate",
+    "migrate:plan": "docker compose run --rm app npm run s:migrate:plan"
+  },
+  "keywords": [],
+  "author": "Jo Colina <jo@jocolina.com>",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@jsmrcaga/sqlite3-orm": "^0.0.2",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.53.0",
+    "@opentelemetry/resources": "^1.27.0",
+    "@opentelemetry/sdk-metrics": "^1.26.0",
+    "fastify": "^5.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.7.3",
+    "nodemon": "^3.1.7",
+    "sinon": "^19.0.2"
+  }
+}

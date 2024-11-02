@@ -1,0 +1,56 @@
+services:
+  app:
+    build: .
+
+    environment:
+      PORT: 3001
+      DEV_ROUTES: true
+      OTEL_COLLECTOR_URL: http://alloy:4318/v1/metrics
+      SQLITE_DB: ':memory:'
+      EM_METRICS_NO_AUTH: yes
+
+    ports:
+      - 3001:3001
+
+    command: npx nodemon src/index.js
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    depends_on:
+      - grafana
+      - alloy
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    ports:
+      - 3000:3000
+
+  prometheus:
+    image: prom/prometheus:v2.55.0-rc.1
+
+    command:
+      # Had to c/c all of this just to add the web.enable flag
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+      - --web.enable-remote-write-receiver
+
+    ports:
+      - 9090:9090
+
+  alloy:
+    image: grafana/alloy:v1.4.3
+    ports:
+      - 4138:4138
+      - 12345:12345
+
+    environment:
+      PROMETHEUS_WRITE_ENDPOINT: http://prometheus:9090/api/v1/write
+
+    command: run --server.http.listen-addr 0.0.0.0:12345 /etc/alloy/config.alloy
+
+    volumes:
+      - ./.docker/alloy/config.alloy:/etc/alloy/config.alloy
