@@ -2,8 +2,7 @@ module staging {
   source = "../stack"
 
   environment = "staging"
-  otel_collector_url = "http://alloy.alloy.svc.cluster.local:4381/v1/metrics"
-
+  otel_collector_url = "http://alloy.alloy.svc.cluster.local:4318/v1/metrics"
 
   replicas = 1
 
@@ -27,6 +26,7 @@ module staging {
   env = {
     HOST = "0.0.0.0"
     PORT = 3000
+    DEV_ROUTES = true
   }
 
   api_token = "staging-token"
