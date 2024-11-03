@@ -9,7 +9,6 @@ const server = fastify();
 
 server.get('/health', () => ({
 	ok: true,
-	host: os.hostname()
 }));
 
 server.register(require('./routing/dev/dev'));
