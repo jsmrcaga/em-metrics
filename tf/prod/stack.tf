@@ -1,9 +1,12 @@
+resource random_password api_token {
+  length = 32
+}
+
 module production {
   source = "../stack"
 
   environment = "production"
-  otel_collector_url = "http://alloy.alloy.svc.cluster.local:4381/v1/metrics"
-
+  otel_collector_url = "http://alloy.alloy.svc.cluster.local:4318/v1/metrics"
 
   replicas = 1
 
@@ -25,15 +28,21 @@ module production {
   }
 
   env = {
+    DEV_ROUTES = true
     HOST = "0.0.0.0"
     PORT = 3000
   }
 
-  api_token = "staging-token"
+  api_token = random_password.api_token.result
 
   docker = {
     username = var.docker.username
     password = var.docker.password
     registry = "ghcr.io"
   }
+}
+
+output api_token {
+  value = random_password.api_token
+  sensitive = true
 }
