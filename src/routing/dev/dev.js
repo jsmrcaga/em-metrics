@@ -6,7 +6,7 @@ module.exports = (server, options, done) => {
 	}
 
 	server.post('/ping', () => {
-		const counter = otel_meter.Counter('counter_jo');
+		const counter = otel_meter.Counter('test_counter');
 		counter.add(1);
 		return {};
 	});
