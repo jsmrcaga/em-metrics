@@ -18,14 +18,50 @@ jobs:
       - uses: actions/checkout@v4
       - run: npm test
 
+  build_image:
+    name: Build & Upload Docker image
+    runs-on: ubuntu-22.04
+
+    if: ${{ github.event_name == 'push' }}
+
+    concurrency: deployment
+
+    needs:
+      - test
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: ghcr.io login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build image
+        run: |
+          docker build \
+            --platform="linux/amd64" \
+            -t ghcr.io/jsmrcaga/em-metrics:${{ github.run_number }} \
+            -t ghcr.io/jsmrcaga/em-metrics:latest \
+            --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --label "org.opencontainers.image.description=EM Metrics Service image" \
+            --label "org.opencontainers.image.licenses=MIT" \
+            .
+      - name: Push image
+        run: docker push ghcr.io/jsmrcaga/em-metrics --all-tags
+
   deploy:
     name: Deploy
     runs-on: ubuntu-22.04
 
     needs:
       - test
+      - build_image
 
     if: ${{ github.event_name == 'push' }}
 
     steps:
-      - run: echo "Coming soon"
+      - name: Create kube cluster access config
+        run: echo ${{ secrets.KUBE_CLUSTER_B64 }} | base64 --decode >> /tmp/kube.yml
+      - name: Update image in statefulset
+        run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-staging sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ github.run_number }}
