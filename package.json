@@ -7,8 +7,8 @@
     "mocha": "mocha --file ./test/setup.js --exit --recursive ./test/**/*.test.js",
     "test": "docker compose run --rm app npm run mocha",
     "build": "docker compose build app --no-cache",
-    "s:migrate": "sqlite-migrate migrate -m ./src/models/migrations -f ./db.sqlite",
-    "s:migrate:plan": "sqlite-migrate plan -m ./src/models/migrations -f ./db.sqlite",
+    "s:migrate": "sqlite-migrate migrate -m ./src/models/migrations -f ${SQLITE_DB}",
+    "s:migrate:plan": "sqlite-migrate plan -m ./src/models/migrations -f ${SQLITE_DB}",
     "migrate": "docker compose run --rm app npm run s:migrate",
     "migrate:plan": "docker compose run --rm app npm run s:migrate:plan"
   },
