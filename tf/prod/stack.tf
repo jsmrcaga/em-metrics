@@ -31,5 +31,9 @@ module production {
 
   api_token = "staging-token"
 
-  docker = var.docker
+  docker = {
+    username = var.docker.username
+    password = var.docker.password
+    registry = "ghcr.io"
+  }
 }
