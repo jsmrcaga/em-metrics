@@ -8,4 +8,10 @@ module repo {
   name = "em-metrics"
   visibility = "public"
   topics = []
+
+  actions = {
+    secrets = {
+      KUBE_CLUSTER_B64 = base64encode(file(var.kube_config_path))
+    }
+  }
 }
