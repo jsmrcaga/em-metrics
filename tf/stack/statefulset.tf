@@ -60,7 +60,7 @@ resource kubernetes_stateful_set_v1 em_metrics {
 
           volume_mount {
             name = local.volume_name
-            mount_path = "/var/data"
+            mount_path = "/var/em-metrics/data"
           }
 
           resources {
@@ -82,7 +82,7 @@ resource kubernetes_stateful_set_v1 em_metrics {
 
           env {
             name = "SQLITE_DB"
-            value = "/var/data/${var.sqlite_filename}"
+            value = "/var/em-metrics/data/${var.sqlite_filename}"
           }
 
           env {
@@ -98,6 +98,11 @@ resource kubernetes_stateful_set_v1 em_metrics {
               name = env_var.key
               value = env_var.value
             }
+          }
+
+          env {
+            name = "DEPLOYMENT_ENVIRONMENT"
+            value = var.environment
           }
         }
 
