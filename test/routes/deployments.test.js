@@ -236,4 +236,45 @@ describe('Deployments', () => {
 			});
 		});
 	});
+
+	describe('Retrieve', () => {
+		beforeEach(() => {
+			const deployment = new Deployment({
+				id: 'deployment_test_get',
+				first_commit_at: '2020-01-01T00:00:00.000Z',
+				deployed_at: '2020-01-01T00:00:01.000Z',
+				deploy_start_at: '2020-01-01T00:00:01.000Z',
+				project_id: 'project-2'
+			});
+
+			return Deployment.objects.insert(deployment);
+		});
+
+		it('retrieves a deployment', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments/deployment_test_get'
+			}).then(response => {
+				expect(response.statusCode).to.be.eql(200);
+
+				const body = JSON.parse(response.body);
+				expect(body).to.eql({
+					id: 'deployment_test_get',
+					first_commit_at: '2020-01-01T00:00:00.000Z',
+					deployed_at: '2020-01-01T00:00:01.000Z',
+					deploy_start_at: '2020-01-01T00:00:01.000Z',
+					project_id: 'project-2'
+				});
+			});
+		});
+
+		it('gets a 404', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments/fake_depl_id'
+			}).then(response => {
+				expect(response.statusCode).to.be.eql(404);
+			});
+		});
+	});
 });

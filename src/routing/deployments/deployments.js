@@ -75,5 +75,9 @@ module.exports = (server, options, done) => {
 		});
 	});
 
+	server.get('/:deployment_id', (req, reply) => {
+		return Deployment.objects.get(req.params.deployment_id);
+	});
+
 	done();
 };
