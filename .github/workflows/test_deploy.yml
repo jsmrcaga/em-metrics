@@ -46,6 +46,7 @@ jobs:
             --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
             --label "org.opencontainers.image.description=EM Metrics Service image" \
             --label "org.opencontainers.image.licenses=MIT" \
+            --build-arg EM_METRICS_VERSION=${{ github.ref_name }} \
             .
       - name: Push image
         run: docker push ghcr.io/jsmrcaga/em-metrics --all-tags
