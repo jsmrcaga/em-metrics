@@ -6,8 +6,8 @@ on:
       - opened
       - synchronize
   push:
-    branches:
-      - master
+    tags:
+      - v*.*.*
 
 jobs:
   test:
@@ -41,7 +41,7 @@ jobs:
         run: |
           docker build \
             --platform="linux/amd64" \
-            -t ghcr.io/jsmrcaga/em-metrics:${{ github.run_number }} \
+            -t ghcr.io/jsmrcaga/em-metrics:${{ github.ref_name }} \
             -t ghcr.io/jsmrcaga/em-metrics:latest \
             --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
             --label "org.opencontainers.image.description=EM Metrics Service image" \
@@ -64,4 +64,4 @@ jobs:
       - name: Create kube cluster access config
         run: echo ${{ secrets.KUBE_CLUSTER_B64 }} | base64 --decode >> /tmp/kube.yml
       - name: Update image in statefulset
-        run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-staging sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ github.run_number }}
+        run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-staging sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ github.ref_name }}
