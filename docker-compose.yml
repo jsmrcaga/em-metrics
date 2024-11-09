@@ -1,6 +1,9 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        NODE_ENV: development
 
     environment:
       PORT: 3001
