@@ -15,5 +15,12 @@ module.exports = (server, options, done) => {
 		return { ok: true, host: OS.hostname() };
 	});
 
+	// With auth for security
+	server.get('/version', () => {
+		return {
+			version: process.env.EM_METRICS_VERSION || '-'
+		}
+	});
+
 	done();
 };
