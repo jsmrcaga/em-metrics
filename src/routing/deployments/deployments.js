@@ -75,6 +75,30 @@ module.exports = (server, options, done) => {
 		});
 	});
 
+	server.get('/', {
+		schema: {
+			query: {
+				type: 'object',
+				properties: {
+					project_id: { type: 'string' },
+					limit: { type: 'number' },
+					offset: { type: 'number' }
+				}
+			}
+		}
+	}, (req, reply) => {
+		let { project_id, limit='50', offset='0' } = req.query;
+		limit = Number.parseInt(limit, 10);
+		offset = Number.parseInt(offset, 10);
+
+		if(project_id) {
+			return Deployment.objects.filter('project_id = ? LIMIT ? OFFSET ?', project_id, limit, offset);
+		}
+
+		// Hack because WHERE is pre-included
+		return Deployment.objects.filter('1 = 1 LIMIT ? OFFSET ?', limit, offset);
+	});
+
 	server.get('/:deployment_id', (req, reply) => {
 		return Deployment.objects.get(req.params.deployment_id);
 	});

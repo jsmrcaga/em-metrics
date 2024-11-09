@@ -247,7 +247,23 @@ describe('Deployments', () => {
 				project_id: 'project-2'
 			});
 
-			return Deployment.objects.insert(deployment);
+			const d2 = new Deployment({
+				id: 'deployment_test_get_2',
+				first_commit_at: '2020-01-01T00:00:00.000Z',
+				deployed_at: '2020-01-01T00:00:01.000Z',
+				deploy_start_at: '2020-01-01T00:00:01.000Z',
+				project_id: 'project-2'
+			});
+
+			const d3 = new Deployment({
+				id: 'deployment_test_get_3',
+				first_commit_at: '2020-01-01T00:00:00.000Z',
+				deployed_at: '2020-01-01T00:00:01.000Z',
+				deploy_start_at: '2020-01-01T00:00:01.000Z',
+				project_id: 'project-67'
+			});
+
+			return Deployment.objects.insert([deployment, d2, d3]);
 		});
 
 		it('retrieves a deployment', () => {
@@ -274,6 +290,89 @@ describe('Deployments', () => {
 				path: '/api/v1/deployments/fake_depl_id'
 			}).then(response => {
 				expect(response.statusCode).to.be.eql(404);
+			});
+		});
+
+		it('retrieves many deployments', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments'
+			}).then(response => {
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(3);
+
+				const sorted = body.toSorted();
+				expect(sorted.map(d => d.id)).to.be.eql(['deployment_test_get', 'deployment_test_get_2', 'deployment_test_get_3']);
+			});
+		});
+
+		it('retrieves 0 deployments filtered by project id', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments',
+				query: {
+					project_id: 'no-project'
+				}
+			}).then(response => {
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(0);
+			});
+		});
+
+		it('retrieves many deployments filtered by project id', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments',
+				query: {
+					project_id: 'project-2'
+				}
+			}).then(response => {
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(2);
+			});
+		});
+
+		it('retrieves many deployments with a limit', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments',
+				query: {
+					limit: 1
+				}
+			}).then(response => {
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(1);
+			});
+		});
+
+		it('retrieves many deployments with a limit & project id', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments',
+				query: {
+					limit: 1,
+					project_id: 'project-2'
+				}
+			}).then(response => {
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(1);
+				expect(body[0].id).to.be.eql('deployment_test_get');
+			});
+		});
+
+		it('retrieves many deployments with a limit & project id & offset', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/deployments',
+				query: {
+					limit: 1,
+					offset: 1,
+					project_id: 'project-2'
+				}
+			}).then(response => {
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(1);
+				expect(body[0].id).to.be.eql('deployment_test_get_2');
 			});
 		});
 	});
