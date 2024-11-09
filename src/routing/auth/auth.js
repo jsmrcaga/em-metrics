@@ -13,12 +13,16 @@ const auth = (server, options, done) => {
 			return done();
 		}
 
+		const basic_auth = new BasicAuth({
+			username: process.env.EM_METRICS_BASIC_AUTH_USERNAME,
+			password: process.env.EM_METRICS_BASIC_AUTH_PASSWORD
+		});
+
+		const token_auth = new TokenAuth(process.env.EM_METRICS_TOKEN_AUTH);
+
 		const ALLOWED_AUTHS = [
-			new BasicAuth({
-				username: process.env.EM_METRICS_BASIC_AUTH_USERNAME,
-				password: process.env.EM_METRICS_BASIC_AUTH_PASSWORD
-			}),
-			new TokenAuth(process.env.EM_METRICS_TOKEN_AUTH)
+			basic_auth,
+			token_auth
 		];
 
 		const headers = new Headers(request.headers);
@@ -26,7 +30,14 @@ const auth = (server, options, done) => {
 		const auth_header = headers.get('authorization');
 
 		if(!auth_header) {
-			return reply.status(401).send('Authorization Required');
+			reply.status(401);
+
+			if(request.method === 'GET' && basic_auth.usable()) {
+				// So that browsers can send requests
+				reply.header('WWW-Authenticate', 'Basic realm=web-http');
+			}
+
+			reply.send('Authorization Required');
 		}
 
 		for(const auth of ALLOWED_AUTHS) {
