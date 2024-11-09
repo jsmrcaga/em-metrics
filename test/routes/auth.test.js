@@ -96,6 +96,8 @@ describe('Auth', () => {
 					path: '/api/v1/health',
 				}).then(response => {
 					expect(response.statusCode).to.be.eql(401);
+					const headers = new Headers(response.headers);
+					expect(headers.get('WWW-Authenticate')).to.be.eql('Basic realm=web-http');
 					expect(response.body).to.be.eql('Authorization Required');
 				});
 			});
