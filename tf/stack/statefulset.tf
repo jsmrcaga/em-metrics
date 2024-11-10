@@ -58,6 +58,53 @@ resource kubernetes_stateful_set_v1 em_metrics {
           name = local.name
           image = "hello-world"
 
+          startup_probe {
+            initial_delay_seconds = 5
+            period_seconds = 3
+            timeout_seconds = 1
+
+            # Will essentially wait for 35 secs for UP status
+            success_threshold = 1
+            failure_threshold = 10
+
+            http_get {
+              path = "/health"
+              scheme = "HTTP"
+              port = coalesce(var.env["PORT"], 3000)
+            }
+          }
+
+          liveness_probe {
+            period_seconds = 5
+            timeout_seconds = 3
+
+            # kubernetes forces 1 for success for some reason
+            success_threshold = 1
+            failure_threshold = 3
+
+            http_get {
+              path = "/health"
+              scheme = "HTTP"
+              port = coalesce(var.env["PORT"], 3000)
+            }
+          }
+
+          readiness_probe {
+            initial_delay_seconds = 5
+            period_seconds = 5
+            timeout_seconds = 3
+
+            success_threshold = 1
+            # 3 failures in case server is busy
+            failure_threshold = 3
+
+            http_get {
+              path = "/health"
+              scheme = "HTTP"
+              port = coalesce(var.env["PORT"], 3000)
+            }
+          }
+
           volume_mount {
             name = local.volume_name
             mount_path = "/var/em-metrics/data"
