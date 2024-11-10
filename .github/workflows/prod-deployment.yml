@@ -9,8 +9,12 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Test version name
-        run: echo "${{ github.ref_name }}" | grep -E "^v\d+(\.\d+(\.\d+)?)?$"
+      - name: Test version name ${{ github.ref_name }}
+        shell: bash
+        # In the grep engine used in GitHub actions, -E has to be replaced by -P
+        run: |
+          echo "${{ github.ref_name }}" | grep -P "^v\d+(\.\d+(\.\d+)?)?$" \
+          || echo "::error ::Unexpected version ${{ github.ref_name }}" && exit 1
       - name: Create kube cluster access config
         run: echo ${{ secrets.KUBE_CLUSTER_B64 }} | base64 --decode >> /tmp/kube.yml
       - name: Update image in statefulset
