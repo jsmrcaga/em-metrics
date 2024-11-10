@@ -1,0 +1,18 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version: 
+        type: string
+        description: The version tag
+        required: true
+
+jobs:
+  deploy_to_prod:
+    name: Deploy to production
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Create kube cluster access config
+        run: echo ${{ secrets.KUBE_CLUSTER_B64 }} | base64 --decode >> /tmp/kube.yml
+      - name: Update image in statefulset
+        run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-production sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ inputs.version }}
