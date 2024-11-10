@@ -1,10 +1,7 @@
 on:
   workflow_dispatch:
-    inputs:
-      version: 
-        type: string
-        description: The version tag
-        required: true
+
+name: Deploy production
 
 jobs:
   deploy_to_prod:
@@ -12,7 +9,9 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Test version name
+        run: echo "${{ github.ref_name }}" | grep -E "^v\d+(\.\d+(\.\d+)?)?$"
       - name: Create kube cluster access config
         run: echo ${{ secrets.KUBE_CLUSTER_B64 }} | base64 --decode >> /tmp/kube.yml
       - name: Update image in statefulset
-        run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-production sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ inputs.version }}
+        run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-production sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ github.ref_name }}
