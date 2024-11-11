@@ -301,5 +301,75 @@ describe('Incidents', () => {
 				expect(incident.finished_at).to.eql('2024-10-05T10:00:01.000Z');
 			});
 		});
-	})
+	});
+
+	describe('Retrieve', () => {
+		beforeEach(() => {
+			const unfinished_incident = new Incident({
+				id: 'unfinished',
+				project_id: 'project-1',
+			});
+
+			const restored_incident = new Incident({
+				id: 'restored',
+				project_id: 'project-2',
+				restored_at: '2022-01-01T00:00:00.000Z'
+			});
+
+			const finished_incident = new Incident({
+				id: 'finished',
+				project_id: 'project-2',
+				restored_at: '2022-01-01T00:00:00.000Z',
+				finished_at: '2023-01-01T00:00:00.000Z'
+			});
+
+			return Incident.objects.insert([
+				unfinished_incident,
+				restored_incident,
+				finished_incident
+			]);
+		});
+
+		it('should retrieve all incidents', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/incidents',
+			}).then(response => {
+				expect(response.statusCode).to.be.eql(200);
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(3);
+				expect(body.map(i => i.id).toSorted()).to.be.eql(['unfinished', 'restored', 'finished'].toSorted())
+			});
+		});
+
+		it('should retrieve all non-restored incidents', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/incidents',
+				query: {
+					filter: 'in-progress'
+				}
+			}).then(response => {
+				expect(response.statusCode).to.be.eql(200);
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(1);
+				expect(body.map(i => i.id).toSorted()).to.be.eql(['unfinished'].toSorted())
+			});
+		});
+
+		it('should retrieve all unfinished & non-restored incidents', () => {
+			return server.inject({
+				method: 'GET',
+				path: '/api/v1/incidents',
+				query: {
+					filter: 'unfinished'
+				}
+			}).then(response => {
+				expect(response.statusCode).to.be.eql(200);
+				const body = JSON.parse(response.body);
+				expect(body.length).to.be.eql(2);
+				expect(body.map(i => i.id).toSorted()).to.be.eql(['unfinished', 'restored'].toSorted())
+			});
+		});
+	});
 });

@@ -47,7 +47,7 @@ module.exports = (server, options, done) => {
 				properties: {
 					filter: {
 						type: 'string',
-						enum: ['in-progress']
+						enum: ['in-progress', 'unfinished']
 					}
 				}
 			}
@@ -57,8 +57,12 @@ module.exports = (server, options, done) => {
 			// Only send incidents not resolved
 			return Incident.objects.filter('restored_at IS NULL');
 		}
+
+		if(req.query.filter === 'unfinished') {
+			return Incident.objects.filter('finished_at IS NULL OR restored_at IS NULL');
+		}
 		
-		return Incident.objects.filter('ended_at IS NULL OR restored_at IS NULL');
+		return Incident.objects.all();
 	});
 
 	server.post('/:incident_id/restored', {

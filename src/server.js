@@ -19,6 +19,17 @@ server.register(require('./routing/api'), {
 });
 
 server.setErrorHandler((error, req, reply) => {
+	if(error.code === 'FST_ERR_VALIDATION') {
+		return reply.status(400).send({
+			errors: error.validation
+		});
+	}
+
+	// Fastify default errors
+	if(error.statusCode) {
+		return reply.status(error.statusCode).send(error.message);
+	}
+
 	if(error instanceof BadAuthError) {
 		return reply.status(403).send(error.message);
 	}
@@ -32,12 +43,6 @@ server.setErrorHandler((error, req, reply) => {
 	if(error instanceof DoesNotExist) {
 		return reply.status(404).send({
 			error: error.message
-		});
-	}
-
-	if(error.code === 'FST_ERR_VALIDATION') {
-		return reply.status(400).send({
-			errors: error.validation
 		});
 	}
 
