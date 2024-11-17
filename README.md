@@ -136,6 +136,7 @@ if you keep track of your incidents in something like Notion, there's usually au
 | HOST | No | `0.0.0.0` | The host on which to listen. Depending on your config make sure to listen on a host able to communicate with the exterior |
 | PORT | No | 3000 | The port on which the server should listen |
 | SQLITE_DB | Yes | N/A | The SQLite DB file location. Make a volume for this ;) |
+| CONFIG | No | N/A | The path for the config. Absolute paths will work best. You can make a volume for this. |
 | OTEL_SERVICE_NAME | No | `em_metrics` | The "service" that will be used by OTEL. Prometheus will recognize this as the `job_name` |
 | OTEL_COLLECTOR_URL | Yes | The URL of the OTEL collector to which to send the metrics |
 | DEPLOYMENT_ENVIRONMENT | No | `NO_ENV` | The "environment" of the current deployment (usually `production`/`staging..`) |
@@ -144,6 +145,31 @@ if you keep track of your incidents in something like Notion, there's usually au
 | EM_METRICS_BASIC_AUTH_USERNAME | No | N/A (falsy) | The username used in basic authentication. Can be used without password (`password = ''`) |
 | EM_METRICS_BASIC_AUTH_PASSWORD | No | N/A (falsy) | The password used in basic authentication. Can be used without username (`username = ''`) |
 ---
+
+## Config
+
+The configuration only allows adding teams for now, and affecting projects
+and users to those teams.
+
+* `projects` will be matched against the endpoints `project_id`.
+* `users` will be matched against the `user` value from the endpoints (usually the GitHub/GitLab user)
+
+Everything is optional, but this is the general shape:
+```json
+{
+	"teams": {
+		"backend-team": {
+			"projects": ["backend-1", "serverless-1"],
+			"users": ["bob", "jane"]
+		},
+		"front-end-team": {
+			"projects": ["web-app", "mobile-app"],
+			"users": ["lucy"]
+		}
+	}
+}
+
+```
 
 ## API
 
