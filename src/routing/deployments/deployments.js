@@ -1,6 +1,8 @@
 const { DoesNotExist } = require('@jsmrcaga/sqlite3-orm');
 const { Deployment } = require('../../models/deployment');
 
+const { config } = require('../../config');
+
 module.exports = (server, options, done) => {
 	server.post('/', {
 		schema: {
@@ -11,12 +13,14 @@ module.exports = (server, options, done) => {
 					id: { type: 'string' },
 					project_id: { type: 'string' },
 					first_commit_at: { type: 'string' },
+					username: { type: 'string' }
 				},
 			}
 		}
 	}, (req, reply) => {
+		const team_id = config.teams.get_team_from_context({ username: req.body.username, project_id: req.body.project_id });
 		const deployment = new Deployment(req.body);
-		return Deployment.start(deployment).then(result => {
+		return Deployment.start(deployment, { team_id }).then(result => {
 			return reply.status(201).send();
 		});
 	});
@@ -33,7 +37,8 @@ module.exports = (server, options, done) => {
 					project_id: { type: 'string' },
 					deploy_start_at: { type: 'string' },
 					first_commit_at: { type: 'string' },
-					deployed_at: { type: 'string' }
+					deployed_at: { type: 'string' },
+					username: { type: 'string' }
 				},
 				if: {
 					properties: {
@@ -46,8 +51,9 @@ module.exports = (server, options, done) => {
 			}
 		}
 	}, (req, reply) => {
+		const team_id = config.teams.get_team_from_context({ username: req.body.username, project_id: req.body.project_id });
 		return Deployment.objects.get(req.params.deployment_id).then(deployment => {
-			return Deployment.deployed(deployment, req.body.deployed_at).then(result => {
+			return Deployment.deployed(deployment, { date: req.body.deployed_at, team_id }).then(result => {
 				return reply.status(200).send();
 			});
 
@@ -66,9 +72,9 @@ module.exports = (server, options, done) => {
 				...deployment_body
 			});
 
-			return Deployment.start(deployment).then(() => {
+			return Deployment.start(deployment, { team_id }).then(() => {
 				// will be "now" by default
-				return Deployment.deployed(deployment, req.body.deployed_at);
+				return Deployment.deployed(deployment, { date: req.body.deployed_at, team_id });
 			}).then(() => {
 				return reply.status(201).send();
 			});

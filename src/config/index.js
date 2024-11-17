@@ -36,10 +36,11 @@ class Config {
 	}
 
 	constructor(config={}) {
-		this.#init(config);
+		this.init(config);
 	}
 
-	#init(config = {}) {
+	// Not private for testing purposes
+	init(config = {}) {
 		this.config = config;
 		this.teams = new Teams(this.config.teams || {});
 	}
@@ -53,7 +54,7 @@ class Config {
 		const json = require(filename);
 		this.constructor.validate(json);
 
-		return this.#init(json);
+		return this.init(json);
 	}
 }
 

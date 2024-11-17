@@ -36,16 +36,17 @@ class Deployment extends Model {
 		deployed_at: { type: 'string', default: () => new Date().toISOString() },
 	};
 
-	static start(deployment) {
+	static start(deployment, { team_id=undefined }={}) {
 		// insert deployment on DB
 		return Deployment.objects.insert(deployment).then(() => {
 			deployment_started.increment({
-				project_id: deployment.project_id
+				project_id: deployment.project_id,
+				team_id
 			});
 		});
 	}
 
-	static deployed(deployment, date=new Date().toISOString()){
+	static deployed(deployment, { date=new Date().toISOString(), team_id=undefined } = {}){
 		return Deployment.objects.update(deployment.id, {
 			deployed_at: new Date(date).toISOString()
 		}).then(() => {
@@ -54,17 +55,20 @@ class Deployment extends Model {
 			// record deployment duration, usually CI
 			const duration = new Date(deployment.deployed_at).getTime() - new Date(deployment.deploy_start_at).getTime();
 			deployment_duration.record(duration, {
-				project_id: deployment.project_id
+				project_id: deployment.project_id,
+				team_id
 			});
 
 			// increment deployment_count
 			deployment_frequency.increment({
-				project_id: deployment.project_id
+				project_id: deployment.project_id,
+				team_id
 			});
 			// record lead_time_for_changes with 1st commit at
 			const ltfc = new Date(deployment.deployed_at).getTime() - new Date(deployment.first_commit_at).getTime();
 			lead_time_for_changes.record(ltfc, {
-				project_id: deployment.project_id
+				project_id: deployment.project_id,
+				team_id
 			});
 		});
 	}
