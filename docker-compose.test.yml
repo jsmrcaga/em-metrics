@@ -1,0 +1,5 @@
+services:
+  app:
+    environment:
+      SQLITE_DB: ':memory:'
+      CONFIG: ''

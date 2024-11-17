@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node src/index.js",
     "mocha": "mocha --file ./test/setup.js --exit --recursive ./test/**/*.test.js",
-    "test": "docker compose run --rm app npm run mocha",
+    "test": "docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm app npm run mocha",
     "build": "docker compose build app --no-cache",
     "s:migrate": "sqlite-migrate migrate -m ./src/models/migrations -f ${SQLITE_DB}",
     "s:migrate:plan": "sqlite-migrate plan -m ./src/models/migrations -f ${SQLITE_DB}",

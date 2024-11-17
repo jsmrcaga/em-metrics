@@ -9,7 +9,8 @@ services:
       PORT: 3001
       DEV_ROUTES: true
       OTEL_COLLECTOR_URL: http://alloy:4318/v1/metrics
-      SQLITE_DB: ':memory:'
+      SQLITE_DB: '/app/db.sqlite'
+      CONFIG: '/app/test/helpers/config/full-config.json'
       EM_METRICS_NO_AUTH: yes
 
     ports:
