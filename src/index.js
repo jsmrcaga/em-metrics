@@ -1,5 +1,5 @@
 const { server } = require('./server');
-const { config } = require('/.config');
+const { config } = require('./config');
 const { default_db } = require('@jsmrcaga/sqlite3-orm');
 const { flush: flush_metrics } = require('./remote-metrics');
 
