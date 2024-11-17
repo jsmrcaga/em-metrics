@@ -23,7 +23,7 @@ class Teams {
 	get_team_from_context({
 		username,
 		project_id
-	}) {
+	}={}) {
 		const project_team = this.teams_by_project[project_id];
 		if(project_team?.length === 1) {
 			return project_team[0];
@@ -35,7 +35,7 @@ class Teams {
 			return user_team[0];
 		}
 
-		if(project_team?.length === 0 && user_team?.length === 0) {
+		if(!project_team?.length && !user_team?.length) {
 			return undefined;
 		}
 

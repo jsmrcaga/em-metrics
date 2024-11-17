@@ -4,6 +4,7 @@ const { expect } = require('chai');
 const { DORA: { deployment_frequency, lead_time_for_changes }} = require('../../src/metrics');
 
 const { server } = require('../../src/server');
+const { config } = require('../../src/config');
 const { Deployment, deployment_duration, deployment_started } = require('../../src/models/deployment');
 
 const PROJECT_ID = 'test-project';
@@ -69,10 +70,57 @@ describe('Deployments', () => {
 				// metrics
 				expect(deployment_started_stub.calledOnce).to.be.true;
 				expect(deployment_started_stub.calledWith({
-					project_id: PROJECT_ID
+					project_id: PROJECT_ID,
+					team_id: undefined
 				})).to.be.true;
 				expect(deployment_frequency_stub.calledOnce).to.be.false;
 				expect(lead_time_for_changes_stub.calledOnce).to.be.false;
+			});
+		});
+
+		describe('with team', () => {
+			beforeEach(() => {
+				config.init({
+					teams: {
+						'test-team': {
+							users: ['user-1']
+						}
+					}
+				});
+			});
+
+			afterEach(() => {
+				config.init({});
+			});
+
+			it('should create a deployment and increment the frequency and lead time for changes with a team', () => {
+				return server.inject({
+					method: 'POST',
+					path: '/api/v1/deployments',
+					payload: {
+						project_id: PROJECT_ID,
+						first_commit_at: '2020-01-01T00:00:00.000Z',
+						deployed_at: '2020-01-01T00:10:00.000Z',
+						username: 'user-1',
+						id: 'deployment-1'
+					}
+				}).then(response => {
+					expect(response.statusCode).to.be.eql(201);
+					return Deployment.objects.all();
+				}).then(deployments => {
+					expect(deployments).to.have.length(1);
+					const [ deployment ] = deployments;
+					expect(deployment.project_id).to.be.eql(PROJECT_ID);
+
+					// metrics
+					expect(deployment_started_stub.calledOnce).to.be.true;
+					expect(deployment_started_stub.calledWith({
+						project_id: PROJECT_ID,
+						team_id: 'test-team'
+					})).to.be.true;
+					expect(deployment_frequency_stub.calledOnce).to.be.false;
+					expect(lead_time_for_changes_stub.calledOnce).to.be.false;
+				});
 			});
 		});
 	});
@@ -142,20 +190,75 @@ describe('Deployments', () => {
 
 					expect(lead_time_for_changes_stub.calledOnce).to.be.true;
 					expect(lead_time_for_changes_stub.calledWith(2000, {
-						project_id: PROJECT_ID
+						project_id: PROJECT_ID,
+						team_id: undefined
 					})).to.be.true;
 
 					expect(deployment_started_stub.calledOnce).to.be.true;
 					expect(deployment_started_stub.calledWith({
-						project_id: PROJECT_ID
+						project_id: PROJECT_ID,
+						team_id: undefined
 					})).to.be.true;
 
 					expect(deployment_duration_stub.calledOnce).to.be.true;
 					expect(deployment_duration_stub.calledWith(1000, {
-						project_id: PROJECT_ID
+						project_id: PROJECT_ID,
+						team_id: undefined
 					})).to.be.true;
 				});
 			});
+
+			describe('with team', () => {
+				beforeEach(() => {
+					config.init({
+						teams: {
+							'team-test': {
+								projects: [PROJECT_ID]
+							}
+						}
+					});
+				});
+
+				afterEach(() => {
+					config.init({});
+				});
+
+				it('should create the deployment & "deploy" it', () => {
+					return server.inject({
+						method: 'POST',
+						path: '/api/v1/deployments/deployment_1/deployed',
+						payload: {
+							create_if_not_exists: true,
+							project_id: PROJECT_ID,
+							first_commit_at: '2024-01-01T00:00:00.000Z',
+							deploy_start_at: '2024-01-01T00:00:01.000Z',
+							deployed_at: '2024-01-01T00:00:02.000Z'
+						}
+					}).then(response => {
+						expect(response.statusCode).to.be.eql(201);
+
+						expect(deployment_frequency_stub.calledOnce).to.be.true;
+
+						expect(lead_time_for_changes_stub.calledOnce).to.be.true;
+						expect(lead_time_for_changes_stub.calledWith(2000, {
+							project_id: PROJECT_ID,
+							team_id: 'team-test'
+						})).to.be.true;
+
+						expect(deployment_started_stub.calledOnce).to.be.true;
+						expect(deployment_started_stub.calledWith({
+							project_id: PROJECT_ID,
+							team_id: 'team-test'
+						})).to.be.true;
+
+						expect(deployment_duration_stub.calledOnce).to.be.true;
+						expect(deployment_duration_stub.calledWith(1000, {
+							project_id: PROJECT_ID,
+							team_id: 'team-test'
+						})).to.be.true;
+					});
+				});
+			})
 		});
 
 		describe('When a deployment was created beforehand', () => {
@@ -205,12 +308,14 @@ describe('Deployments', () => {
 
 					expect(lead_time_for_changes_stub.calledOnce).to.be.true;
 					expect(lead_time_for_changes_stub.calledWith(1500, {
-						project_id: 'project-2'
+						project_id: 'project-2',
+						team_id: undefined
 					})).to.be.true;
 
 					expect(deployment_duration_stub.calledOnce).to.be.true;
 					expect(deployment_duration_stub.calledWith(500, {
-						project_id: 'project-2'
+						project_id: 'project-2',
+						team_id: undefined
 					})).to.be.true;
 
 					expect(deployment_started_stub.called).to.be.false;
