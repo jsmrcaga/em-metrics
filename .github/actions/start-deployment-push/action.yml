@@ -1,0 +1,50 @@
+name: "EM Metrics - Start deployment - Push"
+description: "Starts a deployment by using the current date and the initial commit date"
+
+inputs:
+  metrics_endpoint:
+    description: "The endpoint where your EM Metrics server is hosted, example: http://metrics.my-company.com/em"
+    required: true
+  api_auth_header:
+    description: The API authorization header. For example "Token 1234" or "Basic \$\{{ secrets.EM_METRICS_AUTH }}". Use secrets.
+    required: true
+
+  deployment_id:
+    description: "The ID of this deployment"
+    reequired: true
+  project_id:
+    description: The project id for this deployment
+    required: true
+  use_username:
+    description: If the GitHub username of the user that authored the first commit should be used
+    required: false
+    default: true
+
+# outputs:
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check event is push
+      if: ${{ github.event_name != 'push' }}
+      shell: bash
+      run: echo "Event must be push" && exit 1
+
+    - name: Get first commit date
+      id: commit_date
+      shell: bash
+      # @see: https://docs.github.com/en/webhooks/webhook-events-and-payloads#push
+      run: echo "FIRST_COMMIT_DATE=${{ github.event.commits[0].timestamp }}" >> "$GITHUB_OUTPUT"
+
+    - name: Log deployment start
+      shell: bash
+      run: |
+        curl -i -X POST ${{ inputs.endpoint }}/api/v1/deployments \
+          -H "Content-Type: application/json"
+          -H "Authorization: ${{ inputs.api_auth_header }}"
+          -d '{
+            "id": "${{ inputs.deployment_id }}",
+            "project_id": "${{ inputs.project_id }}",
+            "first_commit_at": "${{ steps.commit_date.outputs.FIRST_COMMIT_DATE }}",
+            "username": "${{ inputs.use_username && github.event.commits[0].author.username || '' }}"
+          }'
