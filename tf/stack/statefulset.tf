@@ -54,6 +54,14 @@ resource kubernetes_stateful_set_v1 em_metrics {
       }
 
       spec {
+        image_pull_secrets {
+          name = kubernetes_secret_v1.docker_registry.metadata[0].name
+        }
+
+        node_selector = {
+
+        }
+
         container {
           name = local.name
           image = "hello-world"
@@ -151,10 +159,6 @@ resource kubernetes_stateful_set_v1 em_metrics {
             name = "DEPLOYMENT_ENVIRONMENT"
             value = var.environment
           }
-        }
-
-        image_pull_secrets {
-          name = kubernetes_secret_v1.docker_registry.metadata[0].name
         }
       }
     }
