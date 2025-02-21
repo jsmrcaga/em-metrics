@@ -1,6 +1,6 @@
 const { Model, DoesNotExist } = require('@jsmrcaga/sqlite3-orm');
 
-class Webhook extends Model {
+class WebhookStorage extends Model {
 	static TABLE_NAME = 'webhooks';
 
 	static SCHEMA = {
