@@ -19,6 +19,31 @@ const SCHEMA = {
 					}
 				}
 			}
+		},
+		ticketing: {
+			type: 'object',
+			properties: {
+				linear: {
+					type: 'object',
+					properties: {
+						ignore_parent_issues: { type: 'boolean' },
+						ticket_type_selector: {
+							type: 'object',
+							properties: {
+								parent_label_id: { type: ['string', 'null'] },
+								allow_list: {
+									type: 'array',
+									items: { type: 'string' }
+								}
+							},
+							anyOf: [
+								{ required: ["parent_label_id"] },
+								{ required: ["allow_list"] }
+							]
+						},
+					}
+				}
+			}
 		}
 	}
 };
