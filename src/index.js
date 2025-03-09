@@ -15,6 +15,16 @@ process.on('SIGTERM', () => {
 	});
 });
 
+process.on('uncaughException', (err) => {
+	console.error(err);
+	process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+	console.error(err);
+	process.exit(1);
+});
+
 if(require.main === module) {
 	return default_db.init(process.env.SQLITE_DB).then(() => {
 		return config.load(process.env.CONFIG);
