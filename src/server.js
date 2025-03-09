@@ -5,7 +5,9 @@ const { DoesNotExist, ValidationError } = require('@jsmrcaga/sqlite3-orm');
 
 const { BadAuthError } = require('./routing/auth/auths');
 
-const server = fastify();
+const server = fastify({
+	logger: process.env.NODE_ENV === 'production'
+});
 
 server.get('/health', () => ({
 	ok: true,
@@ -17,6 +19,10 @@ server.register(require('./routing/dev/dev'));
 server.register(require('./routing/api'), {
 	prefix: '/api/v1'
 });
+
+server.register(require('./routing/webhooks/webhooks'), {
+	prefix: '/webhooks'
+})
 
 server.setErrorHandler((error, req, reply) => {
 	if(error.code === 'FST_ERR_VALIDATION') {
