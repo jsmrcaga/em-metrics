@@ -11,3 +11,5 @@ node_modules/
 **/.next
 
 db.sqlite*
+
+.env

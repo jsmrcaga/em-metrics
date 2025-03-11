@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
+    "dev": "docker compose -f docker-compose.yml -f docker-compose.local.yml up",
     "mocha": "mocha --file ./test/setup.js --exit --recursive ./test",
     "test": "docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm app npm run mocha",
     "build": "docker compose build app --no-cache",
