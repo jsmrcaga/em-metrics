@@ -59,8 +59,21 @@ const ticket_estimation_changed = new TicketEstimationChanged('ticket_estimation
 	}
 });
 
+/**
+ * We need to record negative values separately because otel does not
+ * understand negative values. We will *-1 later
+ * @see https://github.com/open-telemetry/opentelemetry-js/blob/78fc472c1757e63f3a61639343af33817090462f/packages/sdk-metrics/src/Instruments.ts#L134
+ */
+const ticket_estimation_changed_negative = new TicketEstimationChanged('ticket_estimation_changed_negative', {
+	unit: 'points',
+	advice: {
+		explicitBucketBoundaries: TICKET_ESTIMATION_BUCKETS
+	}
+});
+
 module.exports = {
 	ticket_count,
 	time_per_ticket,
-	ticket_estimation_changed
+	ticket_estimation_changed,
+	ticket_estimation_changed_negative
 };

@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 
-const { ticket_count, time_per_ticket, ticket_estimation_changed } = require('../../src/metrics/ticketing/ticketing');
+const { ticket_count, time_per_ticket, ticket_estimation_changed, ticket_estimation_changed_negative } = require('../../src/metrics/ticketing/ticketing');
 const { Ticket } = require('../../src/models/ticket');
 
 describe('Ticketing', () => {
@@ -13,6 +13,7 @@ describe('Ticketing', () => {
 		ticket_count_stub = sinon.stub(ticket_count, 'increment');
 		time_per_ticket_stub = sinon.stub(time_per_ticket, 'record');
 		ticket_estimation_changed_stub = sinon.stub(ticket_estimation_changed, 'record');
+		ticket_estimation_changed_negative_stub = sinon.stub(ticket_estimation_changed_negative, 'record');
 	});
 
 	afterEach(() => {
@@ -125,31 +126,55 @@ describe('Ticketing', () => {
 			});
 		});
 
-		for(const new_estimation of [2, 8]) {
-			it(`should send an estimation changed metric if estimation changed (${new_estimation - 4})`,  () => {
-				// did not change estimation
-				const ticket = new Ticket({
-					id: 'fake-ticket-2',
+		it(`should send an estimation changed metric if estimation changed (-2)`,  () => {
+			// did not change estimation
+			const ticket = new Ticket({
+				id: 'fake-ticket-2',
+				team_id: 'team-1',
+				project_id: 'project-1',
+				actor_hash: 'fsdfsf',
+				ticket_type: 'maintenance',
+				current_estimation: 2,
+				status: 'DOING'
+			});
+
+			return ticket.handle_metrics_and_store().then(() => {
+				expect(ticket_count_stub.notCalled).to.be.true;
+				expect(time_per_ticket_stub.notCalled).to.be.true;
+				expect(ticket_estimation_changed_stub.notCalled).to.be.true;
+				// Prometheus only records positive histogram values
+				expect(ticket_estimation_changed_negative_stub.firstCall.args).to.deep.eql([2, {
 					team_id: 'team-1',
 					project_id: 'project-1',
-					actor_hash: 'fsdfsf',
-					ticket_type: 'maintenance',
-					current_estimation: new_estimation,
-					status: 'DOING'
-				});
-
-				return ticket.handle_metrics_and_store().then(() => {
-					expect(ticket_count_stub.notCalled).to.be.true;
-					expect(time_per_ticket_stub.notCalled).to.be.true;
-					expect(ticket_estimation_changed_stub.callCount).to.eql(1);
-					expect(ticket_estimation_changed_stub.firstCall.args).to.deep.eql([new_estimation - 4, {
-						team_id: 'team-1',
-						project_id: 'project-1',
-						ticket_type: 'maintenance'
-					}]);
-				});
+					ticket_type: 'maintenance'
+				}]);
 			});
-		}
+		});
+
+		it(`should send an estimation changed metric if estimation changed (+4)`,  () => {
+			// did not change estimation
+			const ticket = new Ticket({
+				id: 'fake-ticket-2',
+				team_id: 'team-1',
+				project_id: 'project-1',
+				actor_hash: 'fsdfsf',
+				ticket_type: 'maintenance',
+				current_estimation: 8,
+				status: 'DOING'
+			});
+
+			return ticket.handle_metrics_and_store().then(() => {
+				expect(ticket_count_stub.notCalled).to.be.true;
+				expect(time_per_ticket_stub.notCalled).to.be.true;
+				expect(ticket_estimation_changed_negative_stub.notCalled).to.be.true;
+				expect(ticket_estimation_changed_stub.callCount).to.eql(1);
+				expect(ticket_estimation_changed_stub.firstCall.args).to.deep.eql([+4, {
+					team_id: 'team-1',
+					project_id: 'project-1',
+					ticket_type: 'maintenance'
+				}]);
+			});
+		});
 
 		it('should send ticket count and time per ticket metrics if ticket is done',  () => {
 			// esitmation did not change

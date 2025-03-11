@@ -1,7 +1,7 @@
 const Crypto = require('node:crypto');
 const { Model, DoesNotExist } = require('@jsmrcaga/sqlite3-orm');
 
-const { ticket_count, time_per_ticket, ticket_estimation_changed } = require('../metrics/ticketing/ticketing');
+const { ticket_count, time_per_ticket, ticket_estimation_changed, ticket_estimation_changed_negative } = require('../metrics/ticketing/ticketing');
 
 const is_defined = value => {
 	return ![null, undefined].includes(value);
@@ -147,9 +147,12 @@ class Ticket extends Model {
 			}
 
 			const estimation_diff = this.estimation_delta(db_ticket.current_estimation);
-			if(estimation_diff !== 0) {
-				// estimation_changed
-				ticket_estimation_changed.record(this.current_estimation - db_ticket.current_estimation, metric_labels);
+			if(estimation_diff > 0) {
+				// Right now histogram values cannot be negative
+				// @see https://github.com/open-telemetry/opentelemetry-js/blob/78fc472c1757e63f3a61639343af33817090462f/packages/sdk-metrics/src/Instruments.ts#L134
+				ticket_estimation_changed.record(Math.abs(estimation_diff), metric_labels);
+			} else if (estimation_diff < 0) {
+				ticket_estimation_changed_negative.record(Math.abs(estimation_diff), metric_labels);
 			}
 
 			return this.update();
