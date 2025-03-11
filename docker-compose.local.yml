@@ -1,0 +1,8 @@
+services:
+  app:
+    env_file:
+      - .env
+
+  ngrok:
+    env_file:
+      - .env

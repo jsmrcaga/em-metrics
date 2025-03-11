@@ -25,6 +25,13 @@ services:
     depends_on:
       - grafana
       - alloy
+      - prometheus
+
+  ngrok:
+    image: ngrok/ngrok
+    command: http app:3001
+    ports:
+      - 4040:4040
 
   grafana:
     image: grafana/grafana:11.2.2
