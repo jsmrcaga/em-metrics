@@ -103,7 +103,7 @@ describe('Webhooks - Linear', () => {
 			expect(res.statusCode).to.eql(200);
 
 			expect(ticket_count_stub.callCount).to.eql(1);
-			expect(ticket_count_stub.firstCall.args).to.deep.eql([1, DEFAULT_METRIC_LABELS]);
+			expect(ticket_count_stub.firstCall.args).to.deep.eql([DEFAULT_METRIC_LABELS]);
 			expect(time_per_ticket_stub.callCount).to.eql(1);
 			expect(time_per_ticket_stub.firstCall.args).to.deep.eql([1560, DEFAULT_METRIC_LABELS]);
 			expect(ticket_estimation_changed_stub.notCalled).to.be.true;
