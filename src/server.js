@@ -1,5 +1,6 @@
 const os = require('node:os');
 const fastify = require('fastify');
+const Sentry = require('@sentry/node');
 
 const { DoesNotExist, ValidationError } = require('@jsmrcaga/sqlite3-orm');
 
@@ -53,12 +54,18 @@ server.setErrorHandler((error, req, reply) => {
 	}
 
 	if(error.code === 'SQLITE_CONSTRAINT') {
+		// We might wanna know what happened
+		Sentry.captureException(error);
+
 		return reply.status(400).send({
 			errors: [{
 				message: 'Database constraint violated'
 			}]
 		});
 	}
+
+
+	Sentry.captureException(error);
 
 	console.error(error);
 	reply.status(500).send();

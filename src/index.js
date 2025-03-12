@@ -1,3 +1,5 @@
+require('./instrumentation/sentry');
+
 const { server } = require('./server');
 const { config } = require('./config');
 const { default_db } = require('@jsmrcaga/sqlite3-orm');
