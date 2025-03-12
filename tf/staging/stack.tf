@@ -27,6 +27,8 @@ module staging {
     HOST = "0.0.0.0"
     PORT = 3000
     DEV_ROUTES = true
+    SENTRY_DSN = var.sentry.dsn
+    APP_ENV = "staging"
   }
 
   api_token = "staging-token"
