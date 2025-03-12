@@ -31,6 +31,8 @@ module production {
     DEV_ROUTES = true
     HOST = "0.0.0.0"
     PORT = 3000
+    SENTRY_DSN = var.sentry.dsn
+    APP_ENV = "production"
   }
 
   api_token = random_password.api_token.result

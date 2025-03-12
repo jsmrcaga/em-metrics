@@ -21,3 +21,9 @@ variable subdomain {
     zone_id = string
   })
 }
+
+variable sentry {
+  type = object({
+    dsn = string
+  })
+}
