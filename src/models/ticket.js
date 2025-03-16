@@ -91,11 +91,14 @@ class Ticket extends Model {
 	}
 
 	minutes_to_finish() {
-		if(!is_defined(this.finished_at) || !is_defined(this.started_at)) {
+		// If ticket goes from Backlog to done, there's no started at
+		const start_date = is_defined(this.started_at) ? this.started_at : this.created_at;
+
+		if(!is_defined(this.finished_at) || !start_date) {
 			return 0;
 		}
 
-		return Math.floor((new Date(this.finished_at).getTime() - new Date(this.started_at).getTime()) / 1000 / 60);
+		return Math.ceil((new Date(this.finished_at).getTime() - new Date(start_date).getTime()) / 1000 / 60);
 	}
 
 	get_metric_labels() {
@@ -121,7 +124,7 @@ class Ticket extends Model {
 		if(minutes_to_finish) {
 			time_per_ticket.record(minutes_to_finish, metric_labels);
 		} else {
-			console.log('Could not determine time to finish ticket');
+			console.log(`Could not determine time to finish ticket: ${this.id}`);
 		}
 	}
 

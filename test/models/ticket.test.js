@@ -80,7 +80,7 @@ describe('Ticketing', () => {
 					ticket_type: 'maintenance'
 				}]);
 				expect(time_per_ticket_stub.callCount).to.eql(1);
-				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([94, {
+				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([95, {
 					team_id: 'team-1',
 					project_id: 'project-1',
 					ticket_type: 'maintenance'
@@ -197,7 +197,7 @@ describe('Ticketing', () => {
 					project_id: 'project-1',
 					ticket_type: 'maintenance'
 				}]);
-				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([94, {
+				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([95, {
 					team_id: 'team-1',
 					project_id: 'project-1',
 					ticket_type: 'maintenance'
@@ -227,7 +227,7 @@ describe('Ticketing', () => {
 					project_id: 'project-1',
 					ticket_type: 'maintenance'
 				}]);
-				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([94, {
+				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([95, {
 					team_id: 'team-1',
 					project_id: 'project-1',
 					ticket_type: 'maintenance'
