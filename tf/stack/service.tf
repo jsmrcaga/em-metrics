@@ -13,7 +13,7 @@ resource kubernetes_service_v1 service {
 
     port {
       protocol = "TCP"
-      target_port = var.app.port
+      target_port = "app-port"
       port = var.service.port
     }
   }

@@ -23,24 +23,8 @@ resource kubernetes_stateful_set_v1 em_metrics {
       }
     }
 
-    volume_claim_template {
-      metadata {
-        name = local.volume_name
-        namespace = local.namespace
-      }
-
-      spec {
-        access_modes = ["ReadWriteOnce"]
-        resources {
-          limits = {
-            storage = "100Mi"
-          }
-
-          requests = {
-            storage = "100Mi"
-          }
-        }
-      }
+    update_strategy {
+      type = "RollingUpdate"
     }
 
     template {
@@ -54,12 +38,35 @@ resource kubernetes_stateful_set_v1 em_metrics {
       }
 
       spec {
+        volume {
+          name = "config-volume"
+          config_map {
+            optional = true
+            name = kubernetes_config_map_v1.config.metadata[0].name
+            items {
+              key = "config"
+              mode = "0444"
+              path = "config.json"
+            }
+          }
+        }
+
+        volume {
+          name = "em-metrics-data"
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim_v1.claim.metadata[0].name
+          }
+        }
+
         container {
           name = local.name
           image = "hello-world"
 
+          args = ["node", "src/index"]
+
           startup_probe {
-            initial_delay_seconds = 5
+            # for some reason node is taking 12 seconds to boot
+            initial_delay_seconds = 15
             period_seconds = 3
             timeout_seconds = 1
 
@@ -106,8 +113,14 @@ resource kubernetes_stateful_set_v1 em_metrics {
           }
 
           volume_mount {
-            name = local.volume_name
+            name = "em-metrics-data"
             mount_path = "/var/em-metrics/data"
+          }
+
+          volume_mount {
+            name = "config-volume"
+            # config.json is handled by the config-map definition
+            mount_path = "/var/em-metrics-config"
           }
 
           resources {
@@ -120,6 +133,11 @@ resource kubernetes_stateful_set_v1 em_metrics {
               cpu = var.resources.limits.cpu
               memory = var.resources.limits.memory
             }
+          }
+
+          port {
+            container_port = var.app.port
+            name = "app-port"
           }
 
           env {
@@ -150,6 +168,22 @@ resource kubernetes_stateful_set_v1 em_metrics {
           env {
             name = "DEPLOYMENT_ENVIRONMENT"
             value = var.environment
+          }
+
+          env {
+            name = "LINEAR_SECRET"
+            value_from {
+              secret_key_ref {
+                key = "LINEAR_SECRET"
+                name = kubernetes_secret_v1.linear_secret.metadata[0].name
+                optional = false
+              }
+            }
+          }
+
+          env {
+            name = "CONFIG"
+            value = var.config == null ? "" : "/var/em-metrics-config/config.json"
           }
         }
 

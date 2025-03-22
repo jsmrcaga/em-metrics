@@ -90,3 +90,15 @@ variable subdomain {
     name = string
   })
 }
+
+variable secrets {
+  type = object({
+    linear_secret = string
+  })
+  sensitive = true
+}
+
+variable config {
+  type = map(any)
+  default = null
+}
