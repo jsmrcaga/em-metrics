@@ -23,9 +23,7 @@ const environment = process.env.DEPLOYMENT_ENVIRONMENT || 'NO_ENV';
 const meter_provider = new MeterProvider({
 	readers: [periodic_reader],
 	resource: new Resource({
-		'service.name': process.env.OTEL_SERVICE_NAME || 'em_metrics',
-		// These are not getting used on the prom export
-		'deployment.environment.name': environment,
+		'environment': environment,
 	})
 });
 

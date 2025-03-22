@@ -35,7 +35,6 @@ class Metric {
 
 	increment(attributes={}, context) {
 		return this.add(1, {
-			environment,
 			...attributes
 		}, context);
 	}
@@ -51,7 +50,6 @@ class Metric {
 		}
 
 		this.#instrument.add(value, {
-			environment,
 			...attributes
 		}, context);
 	}
@@ -62,7 +60,6 @@ class Metric {
 		// }
 
 		this.#instrument.record(value, {
-			environment,
 			...attributes
 		}, context);
 	}
