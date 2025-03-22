@@ -17,3 +17,15 @@ resource kubernetes_secret_v1 docker_registry {
     })
   }
 }
+
+resource kubernetes_secret_v1 linear_secret {
+  metadata {
+    name = "linear-secret"
+    namespace = local.namespace
+  }
+
+  type = "linear.com/webhook-secret"
+  data = {
+    "LINEAR_SECRET" = var.secrets.linear_secret
+  }
+}
