@@ -1,4 +1,3 @@
-const { MILLISECOND_BUCKETS } = require('./common');
 const { Metric, METRIC_TYPES } = require('../metric');
 
 class TimeToRestore extends Metric {
@@ -8,9 +7,22 @@ class TimeToRestore extends Metric {
 }
 
 const time_to_restore = new TimeToRestore('time_to_restore', {
-	unit: 'millisecond',
+	unit: 'minute',
 	advice: {
-		explicitBucketBoundaries: MILLISECOND_BUCKETS
+		explicitBucketBoundaries: [
+			1,
+			5,
+			10,
+			20,
+			30,
+			60,
+			2 * 60,
+			3 * 60,
+			5 * 60,
+			8 * 60,
+			15 * 60,
+			24 * 60
+		]
 	}
 });
 

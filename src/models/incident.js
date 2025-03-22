@@ -2,7 +2,6 @@ const { Model, DoesNotExist } = require('@jsmrcaga/sqlite3-orm');
 
 const { DORA: { time_to_restore, change_failure_rate }} = require('../metrics');
 const { Metric, METRIC_TYPES } = require('../metrics/metric');
-const { MILLISECOND_BUCKETS } = require('../metrics/dora/common');
 
 const { Deployment } = require('./deployment');
 
@@ -27,9 +26,23 @@ const incident_finished = new IncidentCounter('incident_finished', {
 });
 
 const time_to_detect = new TimeToDetect('time_to_detect', {
-	unit: 'millisecond',
+	unit: 'minute',
 	advice: {
-		explicitBucketBoundaries: MILLISECOND_BUCKETS
+		explicitBucketBoundaries: [
+			1,
+			5,
+			10,
+			20,
+			30,
+			60,
+			2 * 60,
+			3 * 60,
+			5 * 60,
+			8 * 60,
+			15 * 60,
+			24 * 60,
+			72 * 60
+		]
 	}
 });
 

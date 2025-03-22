@@ -2,7 +2,6 @@ const { Model } = require('@jsmrcaga/sqlite3-orm');
 
 const { Metric, METRIC_TYPES } = require('../metrics/metric');
 const { DORA: { deployment_frequency, lead_time_for_changes }} = require('../metrics');
-const { MILLISECOND_BUCKETS } = require('../metrics/dora/common');
 
 class DeploymentDuration extends Metric {
 	static METRIC_TYPE = METRIC_TYPES.HISTOGRAM;
@@ -13,9 +12,17 @@ class DeploymentStarted extends Metric {
 }
 
 const deployment_duration = new DeploymentDuration('deployment_duration', {
-	unit: 'millisecond',
+	unit: 'minute',
 	advice: {
-		explicitBucketBoundaries: MILLISECOND_BUCKETS
+		explicitBucketBoundaries: [
+			1,
+			5,
+			15,
+			20,
+			30,
+			60,
+			2 * 60,
+		]
 	}
 });
 
