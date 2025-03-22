@@ -1,4 +1,3 @@
-const { MILLISECOND_BUCKETS } = require('./common');
 const { Metric, METRIC_TYPES } = require('../metric');
 
 class LeadTimeForChanges extends Metric {
@@ -7,9 +6,21 @@ class LeadTimeForChanges extends Metric {
 }
 
 const lead_time_for_changes = new LeadTimeForChanges('lead_time_for_changes', {
-	unit: 'millisecond',
+	unit: 'minute',
 	advice: {
-		explicitBucketBoundaries: MILLISECOND_BUCKETS
+		explicitBucketBoundaries: [
+			5,
+			15,
+			30,
+			60,
+			2.5 * 60,
+			5 * 60, // ~1 devday,
+			8 * 60,
+			15 * 60,
+			24 * 60,
+			2 * 24 * 60, // 2 days
+			5 * 24 * 60, // 5 days
+		]
 	}
 });
 
