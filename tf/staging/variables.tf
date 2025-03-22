@@ -27,3 +27,8 @@ variable sentry {
     dsn = string
   })
 }
+
+variable linear_secret {
+  type = string
+  sensitive = true
+}

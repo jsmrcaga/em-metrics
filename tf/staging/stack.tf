@@ -38,4 +38,18 @@ module staging {
     password = var.docker.password
     registry = "ghcr.io"
   }
+
+  resources = {
+    requests = {
+      cpu = "200m"
+    }
+
+    limits = {
+      cpu = "250m"
+    }
+  }
+
+  secrets = {
+    linear_secret = var.linear_secret
+  }
 }
