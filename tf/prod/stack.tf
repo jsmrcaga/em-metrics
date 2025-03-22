@@ -42,6 +42,24 @@ module production {
     password = var.docker.password
     registry = "ghcr.io"
   }
+
+  resources = {
+    requests = {
+      cpu = "200m"
+      memory = "250Mi"
+    }
+
+    limits = {
+      cpu = "500m"
+      memory = "250Mi"
+    }
+  }
+
+  secrets = {
+    linear_secret = var.linear_secret
+  }
+
+  config = var.config
 }
 
 output api_token {
