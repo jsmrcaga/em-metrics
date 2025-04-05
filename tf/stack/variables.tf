@@ -102,3 +102,8 @@ variable config {
   type = map(any)
   default = null
 }
+
+variable pod_labels {
+  type = map(string)
+  default = {}
+}

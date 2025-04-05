@@ -59,6 +59,10 @@ module production {
     linear_secret = var.linear_secret
   }
 
+  pod_labels = {
+    "loki.grafana/scrape_logs" = "true"
+  }
+
   config = var.config
 }
 

@@ -10,16 +10,13 @@ const { Metric, METRIC_TYPES } = require('../metric');
 const TICKET_MINUTE_BUCKETS = [
 	0,
 	5,
-	10,
 	15,
-	25,
+	30,
 	45,
 	60, // 1h
 	90,
 	120, // 2h
-	150,
 	180, // 3h
-	240, // 4h
 	300, // 5h
 	480, // 8h
 	600, // 10h
