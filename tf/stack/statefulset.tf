@@ -32,9 +32,12 @@ resource kubernetes_stateful_set_v1 em_metrics {
         name = "${local.name}-${var.environment}"
         namespace = local.namespace
 
-        labels = {
-          app = local.name
-        }
+        labels = merge(
+          {
+            app = local.name
+          },
+          coalesce(var.pod_labels, {})
+        )
       }
 
       spec {
