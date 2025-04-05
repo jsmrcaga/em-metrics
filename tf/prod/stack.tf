@@ -66,6 +66,10 @@ module production {
     GITHUB_RSA_PEM_KEY_B64 = base64encode(file("${path.module}/${var.github.rsa_pem_b64}"))
   }
 
+  pod_labels = {
+    "loki.grafana/scrape_logs" = "true"
+  }
+
   config = var.config
 }
 
