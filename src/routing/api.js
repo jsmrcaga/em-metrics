@@ -3,6 +3,10 @@ const OS = require('node:os');
 module.exports = (server, options, done) => {	
 	server.register(require('./auth/auth'));
 
+	server.register(require('./pull-requests/pull-requests'), {
+		prefix: '/pull-requests'
+	});
+
 	server.register(require('./deployments/deployments'), {
 		prefix: '/deployments'
 	});
