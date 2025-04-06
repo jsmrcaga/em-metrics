@@ -65,7 +65,22 @@ class Metric {
 	}
 }
 
+class Counter extends Metric {
+	static METRIC_TYPE = METRIC_TYPES.COUNTER;
+}
+
+class Histogram extends Metric {
+	static METRIC_TYPE = METRIC_TYPES.HISTOGRAM;
+}
+
+class Gauge extends Metric {
+	static METRIC_TYPE = METRIC_TYPES.GAUGE;
+}
+
 module.exports = {
 	Metric,
-	METRIC_TYPES
+	METRIC_TYPES,
+	Counter,
+	Histogram,
+	Gauge
 };
