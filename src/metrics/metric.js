@@ -30,6 +30,7 @@ class Metric {
 
 	constructor(name, options) {
 		this.name = name;
+		this.options = options;
 		this.#instrument = this.constructor.get_instrument(name, options);
 	}
 
