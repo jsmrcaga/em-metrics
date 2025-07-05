@@ -32,5 +32,28 @@ module.exports = (server, options, done) => {
 		});
 	});
 
+	server.post('/github', () => {
+		preParsing: raw_body_parser
+	}, (req, reply) => {
+		// Validate GitHub signature
+		try {
+			github.validate_webhook(req.raw_body, req.headers);
+		} catch(e) {
+			if(e instanceof InvalidSignatureError) {
+				return reply.status(404).send();
+			}
+
+			throw e;
+		}
+
+		if(!github.should_handle(req.body, req.headers)) {
+			return reply.status(200).send();
+		}
+
+		return github.handle(req.body).then(() => {
+			return reply.status(200).send()
+		});
+	});
+
 	done();
 }

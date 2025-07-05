@@ -29,23 +29,29 @@ class Teams {
 			return project_team[0];
 		}
 
-		const user_team = this.teams_by_user[username];
+		const user_teams = this.teams_by_user[username];
 
-		if(user_team?.length === 1){
-			return user_team[0];
+		if(user_teams?.length === 1){
+			return user_teams[0];
 		}
 
-		if(!project_team?.length && !user_team?.length) {
+		if(!project_team?.length && !user_teams?.length) {
 			return undefined;
 		}
 
-		const intersection = new Set(project_team).intersection(new Set(user_team));
+		const intersection = new Set(project_team).intersection(new Set(user_teams));
 		if(intersection.size === 1) {
 			return Array.from(intersection)[0];
 		}
 
 		return undefined;
 	};
+
+	is_user_valid(username) {
+		const user_teams = this.teams_by_user[username];
+
+		return Boolean(user_teams?.length);
+	}
 }
 
 module.exports = {

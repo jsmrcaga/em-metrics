@@ -1,4 +1,4 @@
-const { Model } = require('@jsmrcaga/sqlite3-orm');
+const { Model, DoesNotExist } = require('@jsmrcaga/sqlite3-orm');
 
 const {
 	pull_request_opened_count,
@@ -31,6 +31,10 @@ class PullRequest extends Model {
 		nb_comments: { type: 'number', default: () => 0 },
 		nb_reviews: { type: 'number', default: () => 0 },
 	};
+
+	static is_valid({ team, author }) {
+
+	}
 
 	static created(pr, { additions=null, deletions=null }) {
 		if(!(pr instanceof PullRequest)) {

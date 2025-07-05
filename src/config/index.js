@@ -6,6 +6,11 @@ const SCHEMA = {
 	properties: {
 		teams: {
 			type: 'object',
+			properties: {
+				id: { type: 'string' },
+				github_team_name: { type: 'string' },
+				linear_team_id: { type: 'string' }
+			},
 			additionalProperties: {
 				type: 'object',
 				properties: {
@@ -68,6 +73,7 @@ class Config {
 	init(config = {}) {
 		this.config = config;
 		this.teams = new Teams(this.config.teams || {});
+		this.projects = Projects.from_teams(this.config.teams || {});
 	}
 
 	load(filename) {
