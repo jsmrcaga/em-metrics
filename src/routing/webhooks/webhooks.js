@@ -1,8 +1,15 @@
 const raw_body_parser = require('../../helpers/fastify/raw-body');
-const { linear, InvalidSignatureError } = require('../../integrations/linear/linear');
+const { Linear } = require('../../integrations/linear/linear');
+const { InvalidSignatureError } = require('../../integrations/common');
 
 module.exports = (server, options, done) => {
 	server.decorateRequest('raw_body', null);
+
+	const linear = new Linear({
+		secret: process.env.LINEAR_SECRET,
+		ignore_parent_issues: server.config?.config?.ticketing?.linear?.ignore_parent_issues,
+		ticket_type_selector: server.config?.config?.ticketing?.linear?.ticket_type_selector,
+	});
 
 	// Will need to create one webhook per team
 	server.post('/linear', {

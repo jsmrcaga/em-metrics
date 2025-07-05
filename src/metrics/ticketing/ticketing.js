@@ -9,15 +9,14 @@ const { Metric, METRIC_TYPES } = require('../metric');
 
 const TICKET_MINUTE_BUCKETS = [
 	0,
-	5,
-	10,
 	30,
 	60, // 1h
 	120, // 2h
-	210, // 3.5h
-	300, // 5h
-	480, // 8h
-	600, // 10h
+	300, // 5h - dev day
+	480, // 8h - full workday
+	1440, // 24h
+	2880, // 48h - 2 work days
+	4320 // 72h - 3 work days
 ];
 
 const estimation_limits = new Array(26).fill(0).flatMap((_, i) => [-i, i]).sort((a, b) => a - b);
