@@ -1,7 +1,9 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 
-const { server } = require('../../src/server');
+const { create_server } = require('../../src/server');
+
+const server = create_server();
 
 const { ticket_count, time_per_ticket, ticket_estimation_changed } = require('../../src/metrics/ticketing/ticketing');
 const { Ticket } = require('../../src/models/ticket');

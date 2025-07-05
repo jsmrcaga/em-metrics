@@ -106,6 +106,14 @@ describe('Config', () => {
 						projects: ['p2', 'p3'],
 						users: ['u3']
 					},
+				},
+				ticketing: {
+					linear: {
+						ignore_parent_issues: true,
+						ticket_type_selector: {
+							parent_label_id: 'parent-id'
+						}
+					}
 				}
 			})
 		})

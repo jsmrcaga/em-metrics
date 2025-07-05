@@ -3,12 +3,13 @@ const { expect } = require('chai');
 
 const { DORA: { deployment_frequency, lead_time_for_changes }} = require('../../src/metrics');
 
-const { server } = require('../../src/server');
+const { create_server } = require('../../src/server');
 const { config } = require('../../src/config');
 const { Deployment, deployment_duration, deployment_started } = require('../../src/models/deployment');
 
 const PROJECT_ID = 'test-project';
 
+const server = create_server();
 
 describe('Deployments', () => {
 	let deployment_frequency_stub;
