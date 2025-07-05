@@ -1,8 +1,7 @@
 const Crypto = require('node:crypto');
 
 const { Ticket } = require('../../models/ticket');
-
-class InvalidSignatureError extends Error {}
+const { InvalidSignatureError } = require('../common');
 
 /**
  * @typedef {Object} LinearIssueLabel
@@ -98,7 +97,7 @@ class Linear {
 		const linear_signature = http_headers.get('linear-signature');
 
 		if(linear_signature !== signature) {
-			throw new InvalidSignatureError('Wrong signature');
+			throw new InvalidSignatureError('Wrong Linear signature');
 		}
 	}
 
@@ -165,7 +164,7 @@ class Linear {
 Linear.InvalidSignatureError = InvalidSignatureError;
 
 const linear = new Linear({
-	secret: process.env.LINEAR_SECRET
+	secret: process.env.LINEAR_SECRET,
 });
 
 module.exports = {
