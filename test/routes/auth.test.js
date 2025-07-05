@@ -1,5 +1,7 @@
 const { expect } = require('chai');
-const { server } = require('../../src/server');
+const { create_server } = require('../../src/server');
+
+const server = create_server();
 
 const apply_env = (env) => {
 	for(const [k, v] of Object.entries(env)) {

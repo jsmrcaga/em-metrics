@@ -1,5 +1,7 @@
 const { expect } = require('chai');
-const { server } = require('../../src/server');
+const { create_server } = require('../../src/server');
+
+const server = create_server();
 
 describe('API', () => {
 	describe('Version', () => {

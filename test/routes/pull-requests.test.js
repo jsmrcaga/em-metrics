@@ -1,9 +1,11 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 
-const { server } = require('../../src/server');
+const { create_server } = require('../../src/server');
 
 const { PullRequest } = require('../../src/models/pull-request');
+
+const server = create_server();
 
 const {
 	pull_request_opened_count,

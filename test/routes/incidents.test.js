@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 
-const { server } = require('../../src/server');
+const { create_server } = require('../../src/server');
 const {
 	Incident,
 	incident_count,
@@ -12,6 +12,8 @@ const {
 const { Deployment } = require('../../src/models/deployment');
 
 const { DORA: { time_to_restore, change_failure_rate }} = require('../../src/metrics');
+
+const server = create_server();
 
 describe('Incidents', () => {
 	let time_to_restore_stub;
