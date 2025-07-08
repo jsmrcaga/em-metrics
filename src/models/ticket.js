@@ -13,7 +13,7 @@ class Ticket extends Model {
 	static SCHEMA = {
 		// id is required because it's computed beforehand
 		id: { type: 'string', primary_key: true, required: true },
-		team_id: { type: 'string' },
+		team_id: { type: 'string', required: true },
 		project_id: { type: 'string', required: true },
 
 		created_at: { type: 'string', default: () => new Date().toISOString() },
@@ -21,14 +21,20 @@ class Ticket extends Model {
 		finished_at: { type: ['string', 'null'], default: () => null },
 
 		actor_hash: { type: 'string' }, // probably the hashed email
-		ticket_type: { type: 'string' },
-		status: { type: 'string' }, // BACKLOG, TODO, DOING, DONE, CANCELED, UNKNOWN
+		ticket_type: { type: 'string', default: () => 'unknown' },
+		status: { type: 'string', default: () => 'BACKLOG' }, // BACKLOG, TODO, DOING, DONE, CANCELED, UNKNOWN
 		parent_ticket_id: { type: ['string', 'null'], default: () => null },
 
 		initial_estimation: { type: ['number', 'null'], default: () => null },
 		current_estimation: { type: ['number', 'null'], default: () => null },
 		final_estimation: { type: ['number', 'null'], default: () => null },
 	};
+
+	static hash_actor_email(str) {
+		const sha256 = Crypto.createHash('sha256');
+		sha256.update(str);
+		return sha256.digest('base64');
+	}
 
 	/**
 	 * @param {Object} ticket
@@ -58,9 +64,7 @@ class Ticket extends Model {
 		}
 
 		const { actor_email } = ticket;
-		const sha256 = Crypto.createHash('sha256');
-		sha256.update(actor_email);
-		const actor_hash = sha256.digest('base64');
+		const actor_hash = this.hash_actor_email(actor_email);
 
 		const ticket_params = {
 			...ticket,
