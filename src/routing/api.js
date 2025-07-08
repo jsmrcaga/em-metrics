@@ -15,6 +15,10 @@ module.exports = (server, options, done) => {
 		prefix: '/incidents'
 	});
 
+	server.register(require('./ticketing/ticketing'), {
+		prefix: '/ticketing'
+	});
+
 	server.get('/health', () => {
 		return { ok: true, host: OS.hostname() };
 	});
