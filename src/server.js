@@ -4,11 +4,17 @@ const Sentry = require('@sentry/node');
 
 const { DoesNotExist, ValidationError } = require('@jsmrcaga/sqlite3-orm');
 
+const AjvFormats = require('./helpers/ajv/formats');
 const { BadAuthError } = require('./routing/auth/auths');
 
 const create_server = (config={}) => {
 	const server = fastify({
-		logger: process.env.NODE_ENV === 'production'
+		logger: process.env.NODE_ENV === 'production',
+		ajv: {
+			plugins: [
+				AjvFormats
+			]
+		}
 	});
 
 	server.decorate('config', config);
