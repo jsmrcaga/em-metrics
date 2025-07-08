@@ -4,6 +4,14 @@ class CSVFormatter {
 	}
 
 	format_value(value) {
+		if(!value) {
+			return '""';
+		}
+
+		if(typeof value === 'number') {
+			return value;
+		}
+
 		const escaped_value = value.replace(this.separator, `\\${this.separator}`).replace('"', '\\"');
 		if(value.includes(this.separator) || value.includes('"')) {
 			return `"${escaped_value}"`;
@@ -26,6 +34,7 @@ class CSVFormatter {
 
 		return array_objects.reduce((csv, row) => {
 			csv += Object.values(row).map(val => this.format_value(val)).join(',');
+			csv += '\n';
 			return csv;
 		}, headers)
 	}

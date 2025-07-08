@@ -359,6 +359,30 @@ describe('Ticketing', () => {
 					});
 				});
 			});
+
+			it('should return a list in CSV format', () => {
+				return server.inject({
+					method: 'POST',
+					path: '/api/v1/ticketing/stats?format=csv',
+					payload:{
+						from: '2024-01-01T00:00:00.000Z',
+						to: '2024-04-01T00:00:00.000Z',
+					},
+				}).then(response => {
+					expect(response.statusCode).to.be.eql(200);
+					expect(response.body).to.be.eql('' +
+						'actor_monthly_ticket_count,actor_monthly_project_ticket_count,actor_monthly_project_ticket_percent,actor_hash,actor_monthly_estimation,actor_monthly_time,project_id,month,sum_month_project_estimation,percent_month_project_estimation,sum_month_project_time_spent_seconds,percent_month_project_time_spent_seconds\n' +
+						'1,1,1,actor-1,3,9000,project-1,2024-01-01,3,1,9000,1\n' +
+						'2,1,0.5,actor-2,4,8100,project-1,2024-01-01,1,0.25,900,0.1111111111111111\n' +
+						'1,1,1,kaEiaT74PDPVd5IKjY3l8AOzqzFdqxviACYoYXDJlNk=,8,84600,project-1,2024-01-01,8,1,84600,1\n' +
+						'2,1,0.5,actor-2,4,8100,project-2,2024-01-01,3,0.75,7200,0.8888888888888888\n' +
+						'1,1,1,actor-1,5,21600,project-2,2024-02-01,5,1,21600,1\n' +
+						'1,1,1,actor-2,2,254100,project-2,2024-02-01,2,1,254100,1\n' +
+						'1,1,1,kaEiaT74PDPVd5IKjY3l8AOzqzFdqxviACYoYXDJlNk=,8,335100,project-2,2024-02-01,8,1,335100,1\n' +
+						'1,1,1,kaEiaT74PDPVd5IKjY3l8AOzqzFdqxviACYoYXDJlNk=,13,172800,project-X,2024-03-01,13,1,172800,1\n'
+					);
+				});
+			});
 		});
 	});
 });
