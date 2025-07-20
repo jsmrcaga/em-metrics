@@ -19,6 +19,10 @@ module.exports = (server, options, done) => {
 		prefix: '/ticketing'
 	});
 
+	server.get('/config', () => {
+		return server.config;
+	});
+
 	server.get('/health', () => {
 		return { ok: true, host: OS.hostname() };
 	});

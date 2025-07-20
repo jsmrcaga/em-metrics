@@ -70,6 +70,10 @@ class Config {
 		this.teams = new Teams(this.config.teams || {});
 	}
 
+	toJSON() {
+		return this.config;
+	}
+
 	load(filename) {
 		if(!filename) {
 			// no config file, continue
@@ -85,4 +89,4 @@ class Config {
 
 const config = new Config();
 
-module.exports = { config };
+module.exports = { config, Config };
