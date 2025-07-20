@@ -163,12 +163,7 @@ class Linear {
 
 Linear.InvalidSignatureError = InvalidSignatureError;
 
-const linear = new Linear({
-	secret: process.env.LINEAR_SECRET,
-});
-
 module.exports = {
-	linear,
 	Linear,
 	InvalidSignatureError
 };
