@@ -210,5 +210,5 @@ describe('Integrations - Linear', () => {
 
 			expect(match).to.be.eql('1235');
 		});
-	})
+	});
 });

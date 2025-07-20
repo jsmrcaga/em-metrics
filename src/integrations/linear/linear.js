@@ -115,7 +115,7 @@ class Linear {
 
 	handle_ticket({ data }) {
 		// Pass to handler
-		return linear.to_ticket(data).then(ticket => {
+		return this.to_ticket(data).then(ticket => {
 			if(!ticket) {
 				return;
 			}
