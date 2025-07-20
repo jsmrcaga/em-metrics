@@ -53,6 +53,7 @@ const auth = (server, options, done) => {
 };
 
 // fastify magic to re-use the same scope "above"
+// using this because the server.addHook needs to work in the scope above
 auth[Symbol.for('skip-override')] = true;
 
 module.exports = auth;
