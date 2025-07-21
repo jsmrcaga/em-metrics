@@ -18,7 +18,7 @@ class EMAPIClient {
 
 	request(path, options = {}) {
 		const headers = options.headers || {};
-		headers['Authorization'] = `Bearer ${this.token}`;
+		headers['Authorization'] = `token ${this.token}`;
 
 		const url = `${this.endpoint}${path}`;
 		return fetch(url, {
