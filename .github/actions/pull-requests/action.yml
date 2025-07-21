@@ -1,0 +1,31 @@
+name: EM Metrics - Pull Requests
+
+author: Jo Colina <@jsmrcaga>
+
+description: Sends metrics about pull requests and PR reviews
+
+branding:
+  icon: activity
+  color: gray-dark
+
+inputs:
+  endpoint:
+    required: true
+    description: The EM Metrics service endpoint
+
+  token:
+    required: true
+    description: API token
+
+  team-id:
+    required: true
+    description: Team ID for these metrics
+
+  log-level:
+    required: false
+    default: 'INFO'
+    description: Log level, can be NONE, ERROR, or INFO.
+
+runs:
+  using: node20
+  main: index.js

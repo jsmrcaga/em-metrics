@@ -1,0 +1,16 @@
+{
+  "name": "em-metrics-actions",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --exit --recursive ./test"
+  },
+  "keywords": [],
+  "author": "Jo Colina <jo@jocolina.com>",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "chai": "^5.2.1",
+    "mocha": "^11.7.1"
+  }
+}
