@@ -50,9 +50,9 @@ const pull_request_nb_comments_per_review = new Histogram('pull_request_nb_comme
 			3,
 			5,
 			10,
-			20,
 			30,
-			50
+			50,
+			100
 		]
 	}
 });
@@ -67,8 +67,9 @@ const pull_request_time_to_first_review_minutes = new Histogram('pull_request_ti
 			1 * 60, // 1 hour
 			3 * 60,
 			5 * 60,
-			10 * 60,
-			15 * 60
+			15 * 60,
+			30 * 60,
+			72 * 60,
 		]
 	}
 });
