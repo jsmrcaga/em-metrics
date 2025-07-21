@@ -1,7 +1,7 @@
 const { PullRequestsClient } = require('./api/pull-requests');
 
 class EMAPIClient {
-	constructor(endpoint=process.env.EM_METRICS_ENDPOINT, token=process.env.EM_METRICS_TOKEN) {
+	constructor({ endpoint=process.env.EM_METRICS_ENDPOINT, token=process.env.EM_METRICS_TOKEN } = {}) {
 		if(!endpoint) {
 			throw new Error('Endpoint is required');
 		}
