@@ -26,7 +26,7 @@ describe('Pull Requests', () => {
 	const env = {
 		EM_METRICS_TEAM_ID: 'my-test-team',
 		EM_METRICS_ENDPOINT: 'http://em.metrics',
-		EM_METRICS_TOKEN: 'secret-test-token',
+		INPUT_EM_API_TOKEN: 'secret-test-token',
 		GITHUB_TOKEN: 'github-token',
 		GITHUB_REPOSITORY: 'myorg/myrepo',
 		GITHUB_EVENT_NAME: 'pull_request',

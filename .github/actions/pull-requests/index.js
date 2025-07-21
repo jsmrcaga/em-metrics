@@ -6,7 +6,9 @@ const { Process } = require('../lib/process');
 function run() {
 	// Use environment defaults
 	const github = new Github();
-	const em_api_client = new EMAPIClient();
+	const em_api_client = new EMAPIClient({
+		token: process.env.INPUT_EM_API_TOKEN
+	});
 
 	const EVENT_HANDLERS = {
 		pull_request: {
