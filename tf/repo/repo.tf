@@ -12,6 +12,7 @@ module repo {
   actions = {
     secrets = {
       KUBE_CLUSTER_B64 = base64encode(file(var.kube_config_path))
+      EM_METRICS_TOKEN = var.em_api_token
     }
   }
 }
