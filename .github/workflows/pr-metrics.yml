@@ -1,0 +1,27 @@
+name: Send metrics on PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - closed
+  pull_request_review:
+    types:
+      - submitted
+
+jobs:
+  pr_metrics:
+    runs-on: ubuntu-latest
+
+    name: Send PR Metrics
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/pull-requests
+        with:
+          em_api_token: ${{ secrets.EM_METRICS_TOKEN }}
+        env:
+          EM_METRICS_ENDPOINT: https://em.staging.jocolina.com
+          EM_METRICS_TEAM_ID: 'staging-team-id'
+          LOG_LEVEL: INFO
