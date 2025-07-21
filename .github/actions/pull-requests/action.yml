@@ -9,9 +9,13 @@ branding:
   color: gray-dark
 
 inputs:
-  em-api-token:
+  em_api_token:
     required: true
     description: API token
+
+  github_token:
+    required: true
+    description: GitHub API token
 
 runs:
   using: node20
