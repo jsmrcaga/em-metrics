@@ -5,7 +5,7 @@ const { Process } = require('../lib/process');
 
 function run() {
 	// Use environment defaults
-	const github = new Github();
+	const github = new Github(process.env.INPUT_GITHUB_TOKEN);
 	const em_api_client = new EMAPIClient({
 		token: process.env.INPUT_EM_API_TOKEN
 	});
