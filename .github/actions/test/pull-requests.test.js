@@ -148,7 +148,7 @@ describe('Pull Requests', () => {
 		});
 	});
 
-	it('should call /reviewed when PR is reviewed', () => {
+	it('should call /reviewed when PR is reviewed & approved', () => {
 		mock_github_event(read_github_event_stub, 'pull_request_review', 'submitted', {
 			pull_request: {
 				id: 'pr1',
@@ -157,7 +157,8 @@ describe('Pull Requests', () => {
 			},
 			review: {
 				id: 'review-1',
-				submitted_at: '2025-01-02T00:00:00.000Z'
+				submitted_at: '2025-01-02T00:00:00.000Z',
+				state: 'APPROVED'
 			}
 		});
 
@@ -176,6 +177,67 @@ describe('Pull Requests', () => {
 				{
 					method: 'POST',
 					body: {
+						approved: true,
+						reviewed_at: '2025-01-02T00:00:00.000Z',
+						nb_comments: 5
+					}
+				}
+			]);
+		});
+	});
+
+	it('should not call /reviewed if status is COMMENTED', () => {
+		mock_github_event(read_github_event_stub, 'pull_request_review', 'submitted', {
+			pull_request: {
+				id: 'pr1',
+				number: 567,
+				created_at: '2025-01-01T00:00:00.000Z'
+			},
+			review: {
+				id: 'review-1',
+				submitted_at: '2025-01-02T00:00:00.000Z',
+				state: 'COMMENTED'
+			}
+		});
+
+		github_request_stub.resolves(['a', 'b', 'c', 'd', 'e']);
+
+		return run().then(() => {
+			expect(github_request_stub.callCount).to.be.eql(0);
+			expect(em_api_request_stub.callCount).to.be.eql(0);
+		});
+	});
+
+	it('should call /reviewed when PR is reviewed & not approved', () => {
+		mock_github_event(read_github_event_stub, 'pull_request_review', 'submitted', {
+			pull_request: {
+				id: 'pr1',
+				number: 567,
+				created_at: '2025-01-01T00:00:00.000Z'
+			},
+			review: {
+				id: 'review-1',
+				submitted_at: '2025-01-02T00:00:00.000Z',
+				state: 'CHANGES_REQUESTED'
+			}
+		});
+
+		github_request_stub.resolves(['a', 'b', 'c', 'd', 'e']);
+
+		return run().then(() => {
+			expect(github_request_stub.callCount).to.be.eql(1);
+			expect(github_request_stub.firstCall.args).to.be.eql([
+				'/repos/myorg/myrepo/pulls/567/reviews/review-1/comments'
+			]);
+
+
+			expect(em_api_request_stub.callCount).to.be.eql(1);
+			expect(em_api_request_stub.firstCall.args).to.be.eql([
+				'/api/v1/pull-requests/pr1/reviewed',
+				{
+					method: 'POST',
+					body: {
+						approved: false,
 						reviewed_at: '2025-01-02T00:00:00.000Z',
 						nb_comments: 5
 					}

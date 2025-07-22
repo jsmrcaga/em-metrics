@@ -23,10 +23,14 @@ class PullRequestsClient {
 		});
 	}
 
-	reviewed({ id, reviewed_at, nb_comments } = {}) {
+	reviewed({ id, approved=false, reviewed_at, nb_comments } = {}) {
 		return this.api_client.request(`/api/v1/pull-requests/${id}/reviewed`, {
 			method: 'POST',
-			body: { reviewed_at, nb_comments }
+			body: {
+				approved,
+				reviewed_at,
+				nb_comments
+			}
 		});
 	}
 
