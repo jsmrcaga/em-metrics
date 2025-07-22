@@ -1,0 +1,23 @@
+name: GitHUb Actions Test
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    paths:
+      - ".github/**"
+
+jobs:
+  test_actions:
+    name: Test GitHub Actions
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./.github/actions
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install
+      - run: npm test
