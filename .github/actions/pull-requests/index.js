@@ -38,6 +38,11 @@ function run() {
 		},
 		pull_request_review: {
 			submitted: (event) => {
+				if(!['APPROVED', 'CHANGES_REQUESTED'].includes(event.review?.state)) {
+					log.log(`Ignoring review with state "${event.review?.state}"`);
+					return;
+				}
+
 				return github.get_nb_review_comments({
 					pull_request_nb: event.pull_request.number,
 					review_id: event.review.id
