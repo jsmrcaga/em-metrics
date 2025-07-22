@@ -15,6 +15,7 @@ const {
 	pull_request_loc_removed,
 	pull_request_nb_reviews_per_pr,
 	pull_request_nb_comments_per_review,
+	pull_request_time_to_approve_minutes,
 	pull_request_time_to_first_review_minutes,
 	pull_request_time_to_merge_minutes,
 } = require('../../src/metrics/core4/pull-requests');
@@ -29,6 +30,7 @@ describe('Pull Requests', () => {
 	let pull_request_nb_reviews_per_pr_stub;
 	let pull_request_nb_comments_per_review_stub;
 	let pull_request_time_to_first_review_minutes_stub;
+	let pull_request_time_to_approve_minutes_stub;
 	let pull_request_time_to_merge_minutes_stub;
 
 	beforeEach(() => {
@@ -40,6 +42,7 @@ describe('Pull Requests', () => {
 		pull_request_nb_reviews_per_pr_stub = sinon.stub(pull_request_nb_reviews_per_pr, 'record');
 		pull_request_nb_comments_per_review_stub = sinon.stub(pull_request_nb_comments_per_review, 'record');
 		pull_request_time_to_first_review_minutes_stub = sinon.stub(pull_request_time_to_first_review_minutes, 'record');
+		pull_request_time_to_approve_minutes_stub = sinon.stub(pull_request_time_to_approve_minutes, 'record');
 		pull_request_time_to_merge_minutes_stub = sinon.stub(pull_request_time_to_merge_minutes, 'record');
 	});
 
@@ -130,9 +133,10 @@ describe('Pull Requests', () => {
 
 	describe('Reviews', () => {
 		describe('1st review', () => {
+			const PR_ID = 'pr-2';
 			beforeEach(() => {
 				const pr = new PullRequest({
-					id: 'pr-2',
+					id: PR_ID,
 					team_id: 'team-2',
 					opened_at: '2025-03-03T12:43:23.111Z'
 				});
@@ -196,9 +200,85 @@ describe('Pull Requests', () => {
 						team_id: 'team-2'
 					}]);
 
+					expect(pull_request_time_to_approve_minutes_stub.callCount).to.be.eql(0);
+
 					return PullRequest.objects.get('pr-2');
 				}).then(pr => {
 					expect(pr.first_review_at).to.not.be.null;
+				});
+			});
+
+			it('should mark a PR as reviewed & approved with specific date and send nb_comments metrics', () => {
+				const reviewed_at = '2025-03-03T12:47:23.111Z';
+
+				return server.inject({
+					method: 'POST',
+					url: '/api/v1/pull-requests/pr-2/reviewed',
+					payload: {
+						reviewed_at,
+						approved: true,
+						nb_comments: 12
+					}
+				}).then(res => {
+					expect(res.statusCode).to.be.eql(200);
+					expect(res.body.first_review_at).to.not.be.null;
+
+					expect(pull_request_nb_comments_per_review_stub.callCount).to.be.eql(1);
+					expect(pull_request_nb_comments_per_review_stub.firstCall.args).to.deep.eql([12, {
+						team_id: 'team-2'
+					}]);
+
+					expect(pull_request_time_to_first_review_minutes_stub.callCount).to.be.eql(1);
+					expect(pull_request_time_to_first_review_minutes_stub.firstCall.args).to.be.deep.eql([4, {
+						team_id: 'team-2'
+					}]);
+
+					expect(pull_request_time_to_approve_minutes_stub.callCount).to.be.eql(1);
+					expect(pull_request_time_to_approve_minutes_stub.firstCall.args).to.be.deep.eql([4, {
+						team_id: 'team-2'
+					}]);
+
+					return PullRequest.objects.get('pr-2');
+				}).then(pr => {
+					expect(pr.first_review_at).to.not.be.null;
+					expect(pr.first_approved_at).to.not.be.null;
+				});
+			});
+
+			it('should mark an already-reviewed PR as approved with specific date', () => {
+				const reviewed_at = '2025-03-03T12:47:23.111Z';
+
+				return PullRequest.objects.update(PR_ID, {
+					first_review_at: '2024-01-01T00:10:00.543Z'
+				}).then(() => {
+					return server.inject({
+						method: 'POST',
+						url: '/api/v1/pull-requests/pr-2/reviewed',
+						payload: {
+							reviewed_at,
+							approved: true,
+							nb_comments: 34
+						}
+					});
+				}).then(res => {
+					expect(res.statusCode).to.be.eql(200);
+					expect(res.body.first_review_at).to.not.be.null;
+
+					expect(pull_request_nb_comments_per_review_stub.callCount).to.be.eql(1);
+					expect(pull_request_nb_comments_per_review_stub.firstCall.args).to.deep.eql([34, {
+						team_id: 'team-2'
+					}]);
+
+					expect(pull_request_time_to_first_review_minutes_stub.callCount).to.be.eql(0);
+
+					expect(pull_request_time_to_approve_minutes_stub.callCount).to.be.eql(1);
+					expect(pull_request_time_to_approve_minutes_stub.firstCall.args).to.be.deep.eql([4, {
+						team_id: 'team-2'
+					}]);
+
+					return PullRequest.objects.get('pr-2');
+				}).then(pr => {
+					expect(pr.first_approved_at).to.not.be.null;
 				});
 			});
 		});
