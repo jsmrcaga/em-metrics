@@ -9,6 +9,7 @@ const {
 	pull_request_nb_reviews_per_pr,
 	pull_request_nb_comments_per_review,
 	pull_request_time_to_first_review_minutes,
+	pull_request_time_to_approve_minutes,
 	pull_request_time_to_merge_minutes,
 } = require('../metrics/core4/pull-requests');
 
@@ -28,6 +29,7 @@ class PullRequest extends Model {
 		closed_at: { type: 'string', default: () => null },
 		merged_at: { type: 'string', default: () => null },
 		first_review_at: { type: 'string', default: () => null },
+		first_approved_at: { type: 'string', default: () => null },
 		nb_comments: { type: 'number', default: () => 0 },
 		nb_reviews: { type: 'number', default: () => 0 },
 	};
@@ -58,13 +60,29 @@ class PullRequest extends Model {
 		});
 	}
 
-	static reviewed(pr_id, { reviewed_at=new Date().toISOString(), nb_comments=0  }) {
+	static reviewed(pr_id, { approved=false, reviewed_at=new Date().toISOString(), nb_comments=0  }) {
 		return PullRequest.objects.get(pr_id).then(pr => {
 			const { team_id } = pr;
 
 			pull_request_nb_comments_per_review.record(nb_comments, {
 				team_id
 			});
+
+			let update_set = {};
+
+			if(!pr.first_approved_at && approved) {
+				const time_to_approve = new Date(reviewed_at).getTime() - new Date(pr.opened_at).getTime();
+				const time_to_approve_minutes = time_to_approve / 1000 / 60;
+
+				pull_request_time_to_approve_minutes.record(time_to_approve_minutes, {
+					team_id
+				});
+
+				update_set = {
+					...update_set,
+					first_approved_at: reviewed_at
+				};
+			}
 
 			if(!pr.first_review_at) {
 				const time_to_first_review_ms = new Date(reviewed_at).getTime() - new Date(pr.opened_at).getTime();
@@ -73,10 +91,15 @@ class PullRequest extends Model {
 					team_id
 				});
 
-				return PullRequest.objects.update(pr_id, {
+				update_set = {
+					...update_set,
 					first_review_at: reviewed_at,
 					nb_reviews: pr.nb_reviews ? pr.nb_reviews + 1 : 1
-				});
+				};
+			}
+
+			if(Object.keys(update_set).length > 0) {
+				return PullRequest.objects.update(pr_id, update_set);
 			}
 		});
 	}

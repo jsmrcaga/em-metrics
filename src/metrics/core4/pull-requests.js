@@ -74,6 +74,23 @@ const pull_request_time_to_first_review_minutes = new Histogram('pull_request_ti
 	}
 });
 
+const pull_request_time_to_approve_minutes = new Histogram('pull_request_time_to_approve_minutes', {
+	unit: 'minute',
+	advice: {
+		explicitBucketBoundaries: [
+			5,
+			15,
+			30,
+			1 * 60, // 1 hour
+			3 * 60,
+			5 * 60,
+			15 * 60,
+			30 * 60,
+			72 * 60,
+		]
+	}
+});
+
 const pull_request_time_to_merge_minutes = new Histogram('pull_request_time_to_merge_minutes', {
 	unit: 'minute',
 	advice: {
@@ -116,6 +133,7 @@ module.exports = {
 	pull_request_loc_removed,
 	pull_request_nb_reviews_per_pr,
 	pull_request_nb_comments_per_review,
+	pull_request_time_to_approve_minutes,
 	pull_request_time_to_first_review_minutes,
 	pull_request_time_to_merge_minutes,
 };

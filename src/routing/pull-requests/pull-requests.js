@@ -36,13 +36,16 @@ module.exports = (server, options, done) => {
 				properties: {
 					nb_comments: { type: 'number' },
 					reviewed_at: { type: 'string' },
+					approved: { type: 'boolean' }
 				},
 				required: []
 			}
 		}
 	}, (req, reply) => {
-		const { reviewed_at, nb_comments } = req.body;
+		// must explicitly send approved = true
+		const { reviewed_at, approved=false, nb_comments } = req.body;
 		return PullRequest.reviewed(req.params.id, {
+			approved,
 			reviewed_at,
 			nb_comments,
 		});
