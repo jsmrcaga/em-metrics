@@ -40,8 +40,9 @@ function run() {
 			submitted: (event) => {
 				if(!['APPROVED', 'CHANGES_REQUESTED'].includes(event.review?.state)) {
 					log.log(`Ignoring review with state "${event.review?.state}"`);
-					return;
+					return Promise.resolve();
 				}
+
 
 				return github.get_nb_review_comments({
 					pull_request_nb: event.pull_request.number,
@@ -50,7 +51,8 @@ function run() {
 					return em_api_client.pull_request.reviewed({
 						id: event.pull_request.id,
 						nb_comments,
-						reviewed_at: event.review.submitted_at
+						reviewed_at: event.review.submitted_at,
+						approved: event.review.state === 'APPROVED'
 					});
 				});
 			}
@@ -60,7 +62,7 @@ function run() {
 	const { event, event_name } = github.get_event_or_exit(EVENT_HANDLERS);
 
 	if(!event) {
-		return;
+		return Promise.resolve();
 	}
 
 	const { action: event_type } = event;
@@ -70,7 +72,7 @@ function run() {
 	if(!handler) {
 		log.error(`Something went wrong, cannot find handler for ${event_type}::${event_type}`);
 		Process.exit(1);
-		return;
+		return Promise.resolve();
 	}
 
 	return handler(event);	
