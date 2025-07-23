@@ -1,4 +1,5 @@
 const { PullRequestsClient } = require('./api/pull-requests');
+const { DeploymentsClient } = require('./api/deployments');
 
 class EMAPIClient {
 	constructor({ endpoint=process.env.EM_METRICS_ENDPOINT, token=process.env.EM_METRICS_TOKEN } = {}) {
@@ -14,6 +15,7 @@ class EMAPIClient {
 		this.endpoint = endpoint;
 
 		this.pull_request = new PullRequestsClient(this);
+		this.deployments = new DeploymentsClient(this);
 	}
 
 	request(path, { headers={}, body, ...options } = {}) {

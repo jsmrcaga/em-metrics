@@ -1,0 +1,40 @@
+name: EM Metrics - Deployments
+
+author: Jo Colina <@jsmrcaga>
+
+description: Sends metrics about pull requests and PR reviews
+
+branding:
+  icon: activity
+  color: gray-dark
+
+inputs:
+  em_api_token:
+    required: true
+    description: API token
+
+  deployment_type:
+    required: true
+    description: CREATED or DEPLOYED
+
+  deployment_id:
+    required: true
+
+  project_id:
+    required: true
+
+  first_commit_at:
+    required: false
+    description: ISO String
+
+  create_if_not_exists:
+    required: false
+    description: Required if deployment_type = DEPLOYED. Any value other than "" will be treated as true.
+
+  deployment_start_time:
+    required: false
+    description: Required if deployment_type = DEPLOYED. ISO string.
+
+runs:
+  using: node20
+  main: index.js
