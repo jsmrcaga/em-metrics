@@ -73,7 +73,7 @@ describe('Deployments', () => {
 		process.env.INPUT_PROJECT_ID = 'my-project';
 		process.env.INPUT_FIRST_COMMIT_AT = '2025-06-06T00:00:00.000Z';
 
-		process.env.INPUT_CREATE_IF_NOT_EXISTS = 'yes';
+		process.env.INPUT_CREATE_IF_NOT_EXISTS = 'true';
 		process.env.INPUT_DEPLOYMENT_START_TIME = '2025-06-07T00:00:00.000Z';
 
 		return run().then(() => {
@@ -96,7 +96,7 @@ describe('Deployments', () => {
 		process.env.INPUT_PROJECT_ID = 'my-project';
 		process.env.INPUT_FIRST_COMMIT_AT = '2025-06-06T00:00:00.000Z';
 
-		process.env.INPUT_CREATE_IF_NOT_EXISTS = 'yes';
+		process.env.INPUT_CREATE_IF_NOT_EXISTS = 'true';
 		process.env.INPUT_DEPLOYMENT_START_TIME = '';
 
 		return run().then(() => {
