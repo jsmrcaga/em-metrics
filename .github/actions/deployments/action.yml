@@ -29,6 +29,7 @@ inputs:
 
   create_if_not_exists:
     required: false
+    default: false
     description: Required if deployment_type = DEPLOYED. Any value other than "" will be treated as true.
 
   deployment_start_time:
