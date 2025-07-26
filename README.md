@@ -1,4 +1,5 @@
-<h1 align="center">Engineering Management metrics</h1>
+
+<img src="./docs/assets/banner.png" width="100%"/>
 
 ---
 
@@ -16,6 +17,10 @@ Prometheus 3.0 release allows it to behave as an OTEL collector, but I personall
 chose to go through Grafana Alloy.
 
 ---
+
+## Roadmap
+- [ ] Add Postgres storage
+- [ ] Add Grafana DataSource APIs
 
 ## Metrics
 
@@ -43,6 +48,24 @@ chose to go through Grafana Alloy.
 	If you're using something like incident.io or status pages, you might have a way to automate with webhooks
 	_Directly forwarded to Prometheus as a histogram_
 
+### Core4
+
+* **Merged PRs per Engineer per week**
+	* This tracks the number of merged pull requests per engineer per week.
+	* A bigger value usually means lower cycle times.
+
+* **Change Failure Rate**
+	* Same as in DORA
+
+* **Innovation Ratio**
+	* This metric is the percentage of time spent in tickets that
+	  create new value. These are new features, specs, PoCs... over
+	  the entire time spent on tickets.
+	* This is currently manually computed in Grafana thanks to the ticket
+	  time metric and filtering on the `ticket_type` label
+
+* **DXI**
+	* Developer Experience Index, a proprietary metric from getdx.
 
 ### Extra metrics
 
