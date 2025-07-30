@@ -29,10 +29,12 @@ function run() {
 
 	const create_if_not_exists = EnvParser.parse_bool(process.env.INPUT_CREATE_IF_NOT_EXISTS ?? false);
 
-	if(!process.env.INPUT_DEPLOYMENT_START_TIME) {
-		log.error('deployment_start_time is mandatory when type is DEPLOYED');
-		Process.exit(1);
-		return Promise.resolve();
+	if(create_if_not_exists) {
+		if(!process.env.INPUT_DEPLOYMENT_START_TIME || !process.env.INPUT_PROJECT_ID || !process.env.INPUT_FIRST_COMMIT_AT) {
+			log.error('deployment_start_time, first_commit_at and project_id are mandatory when type is DEPLOYED');
+			Process.exit(1);
+			return Promise.resolve();
+		}
 	}
 
 	return em_api_client.deployments.deployed({
