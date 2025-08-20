@@ -1,0 +1,2 @@
+ALTER TABLE incidents
+ADD COLUMN team_id TEXT DEFAULT NULL;

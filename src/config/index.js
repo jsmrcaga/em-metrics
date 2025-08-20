@@ -27,6 +27,7 @@ const SCHEMA = {
 					type: 'object',
 					properties: {
 						ignore_parent_issues: { type: 'boolean' },
+						incident_label_id: { type: 'string' },
 						ticket_type_selector: {
 							type: 'object',
 							properties: {

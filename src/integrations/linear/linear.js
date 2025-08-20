@@ -1,6 +1,7 @@
 const Crypto = require('node:crypto');
 
 const { Ticket } = require('../../models/ticket');
+const { Incident } = require('../../models/incident');
 const { InvalidSignatureError } = require('../common');
 
 /**
@@ -43,6 +44,10 @@ const LinearStatusMapping = {
 	canceled: 'CANCELED'
 };
 
+const TicketToIncidentStatusMapping = {
+
+};
+
 class Linear {
 	/**
 	 * @param {string} secret - Linear webhook secret
@@ -51,7 +56,8 @@ class Linear {
 	constructor({
 		secret,
 		ignore_parent_issues=true,
-		ticket_type_selector = {},
+		ticket_type_selector={},
+		incident_label_id=null
 	}) {
 		this.secret = secret;
 		this.ignore_parent_issues = ignore_parent_issues;
@@ -59,6 +65,7 @@ class Linear {
 			parent_label_id: ticket_type_selector.parent_label_id,
 			allow_list: ticket_type_selector.allow_list ? new Set(ticket_type_selector.allow_list) : null
 		};
+		this.incident_label_id = incident_label_id;
 	}
 
 	/**
@@ -113,11 +120,30 @@ class Linear {
 		throw new Error(`Should not handle payload of type: ${payload.type}`);
 	}
 
-	handle_ticket({ data }) {
+	is_ticket_incident(issue) {
+		return Boolean(labels.find(l => this.incident_label_id === l.id));
+	}
+
+	handle_incident(ticket) {
+		// Possible statuses
+		//   declared (Planned)
+		//   picked up (Started)
+		//   service restored (Done)
+		//   fixed/finished (?)
+		// Caveats:
+		// * No deployment_id, so time_to_detect will not be stored
+	}
+
+	handle_ticket({ data: issue }) {
 		// Pass to handler
-		return this.to_ticket(data).then(ticket => {
+		return this.to_ticket(issue).then(ticket => {
 			if(!ticket) {
 				return;
+			}
+
+			if(this.is_ticket_incident(issue)) {
+				// Handle incident flow
+				return this.handle_incident(ticket);
 			}
 
 			return ticket.handle_metrics_and_store();

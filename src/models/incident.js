@@ -46,6 +46,7 @@ const time_to_detect = new TimeToDetect('time_to_detect', {
 	}
 });
 
+
 class Incident extends Model {
 	static TABLE_NAME = 'incidents';
 
@@ -54,6 +55,7 @@ class Incident extends Model {
 		id: { type: 'string', primary_key: true, required: true },
 		project_id: { type: 'string', required: true },
 		deployment_id: { type: 'string', nullable: true },
+		team_id: { type: 'string', required: false, default: () => null },
 
 		started_at: { type: 'string', required: true, default: () => new Date().toISOString() },
 		restored_at: { type: 'string', nullable: true, default: () => null },
@@ -104,7 +106,7 @@ class Incident extends Model {
 			project_id: incident.project_id,
 		});
 	}
-	
+
 	static #get_default_date(date) {
 		if(!date) {
 			return new Date().toISOString();
@@ -113,7 +115,7 @@ class Incident extends Model {
 		}
 	}
 
-	static resolve(incident, date) {		
+	static resolve(incident, date) {
 		const restored_at = this.#get_default_date(date);
 		return Incident.objects.update(incident.id, {
 			restored_at
