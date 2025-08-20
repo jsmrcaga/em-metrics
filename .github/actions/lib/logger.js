@@ -10,7 +10,7 @@ class Logger {
 	}
 
 	call_log(level, func, ...args) {
-		if(this.level < level) {
+		if(level > this.level) {
 			return;
 		}
 
@@ -32,7 +32,8 @@ class Logger {
 	}
 }
 
-const log = new Logger();
+const log_level = LOG_LEVELS[process.env.INPUT_LOG_LEVEL || 'ERROR'];
+const log = new Logger(log_level);
 
 module.exports = {
 	Logger,

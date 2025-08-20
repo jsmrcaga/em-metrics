@@ -17,6 +17,10 @@ inputs:
     required: true
     description: GitHub API token
 
+  log_level:
+    required: false
+    description: Log level. One of NONE, ERROR or INFO
+
 runs:
   using: node20
   main: index.js

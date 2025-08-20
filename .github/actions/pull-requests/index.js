@@ -43,11 +43,13 @@ function run() {
 					return Promise.resolve();
 				}
 
+				log.log(`Getting nb of comments from GitHub...`);
 
 				return github.get_nb_review_comments({
 					pull_request_nb: event.pull_request.number,
 					review_id: event.review.id
 				}).then(nb_comments => {
+					log.log(`Nb Comments: ${nb_comments}`);
 					return em_api_client.pull_request.reviewed({
 						id: event.pull_request.id,
 						nb_comments,
@@ -75,7 +77,8 @@ function run() {
 		return Promise.resolve();
 	}
 
-	return handler(event);	
+	log.log(`Handling event ${event_type}::${event_type}`);
+	return handler(event);
 }
 
 // for testing
