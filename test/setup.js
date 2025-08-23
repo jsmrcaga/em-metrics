@@ -1,4 +1,5 @@
 const { default_db, SqliteMigrator } = require('@jsmrcaga/sqlite3-orm');
+const { config } = require('../src/config');
 
 before(() => {
 	return default_db.init(process.env.SQLITE_DB).then(() => {
@@ -14,6 +15,12 @@ before(() => {
 
 beforeEach(() => {
 	return default_db.clear();
+});
+
+afterEach(() => {
+	// Config is a singleton, so we reset
+	// just in case
+	config.reset();
 });
 
 beforeEach(() => {

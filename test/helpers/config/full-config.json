@@ -2,11 +2,11 @@
 	"teams": {
 		"team-1": {
 			"projects": ["p1", "p2"],
-			"users": ["u1", "u2"]
+			"users": [{ "github_username": "u1"}, { "email": "u2@example.com" }]
 		},
 		"team-2": {
 			"projects": ["p2", "p3"],
-			"users": ["u3"]
+			"users": [{ "github_username": "u3"}]
 		}
 	},
 	"ticketing": {

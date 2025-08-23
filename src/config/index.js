@@ -6,19 +6,31 @@ const SCHEMA = {
 	properties: {
 		teams: {
 			type: 'object',
+			// required: ['id'],
+			minProperties: 0,
 			additionalProperties: {
 				type: 'object',
 				properties: {
+					id: { type: 'string' },
+					github_team_name: { type: 'string' },
+					linear_team_id: { type: 'string' },
+					users: {
+						type: 'array',
+						items: {
+							type: 'object',
+							properties: {
+								email: { type: 'string' },
+								github_username: { type: 'string' },
+								slack_member_id: { type: 'string' }
+							}
+						}
+					},
 					projects: {
 						type: 'array',
 						items: { type: 'string' }
 					},
-					users: {
-						type: 'array',
-						items: { type: 'string' }
-					}
-				}
-			}
+				},
+			},
 		},
 		ticketing: {
 			type: 'object',
@@ -68,6 +80,10 @@ class Config {
 	init(config = {}) {
 		this.config = config;
 		this.teams = new Teams(this.config.teams || {});
+	}
+
+	reset() {
+		this.init({});
 	}
 
 	toJSON() {

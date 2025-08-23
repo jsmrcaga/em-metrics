@@ -14,6 +14,18 @@ describe('Config', () => {
 				teams: {}
 			})).not.to.throw();
 
+			try {
+				config.constructor.validate({
+					teams: {
+						team1: {
+							projects: []
+						}
+					}
+				})
+			} catch(e) {
+				console.error(e);
+			}
+
 			expect(() => config.constructor.validate({
 				teams: {
 					team1: {
@@ -83,28 +95,29 @@ describe('Config', () => {
 		});
 
 		it('should throw if unknown file', () => {
-			expect(() => config.load(path.join(__dirname, './config/plep.json'))).to.throw();
+			expect(() => config.load(path.join(__dirname, './config/plep.json'))).to.throw('Cannot find module');
 		});
 
 		it('should fail validation while loading', () => {
 			expect(() => {
 				config.load(path.join(__dirname, './config/bad-config.json'));
-			}).to.throw();
+			}).to.throw('Bad config');
 		});
 
 		it('should load successfully', () => {
 			expect(() => {
 				config.load(path.join(__dirname, './config/full-config.json'));
 			}).not.to.throw();
+
 			expect(config.config).to.eql({
 				teams: {
 					'team-1': {
 						projects: ['p1', 'p2'],
-						users: ['u1', 'u2']
+						users: [{ github_username: 'u1' } , { email: 'u2@example.com' }]
 					},
 					'team-2': {
 						projects: ['p2', 'p3'],
-						users: ['u3']
+						users: [{ github_username: 'u3' }]
 					},
 				},
 				ticketing: {
