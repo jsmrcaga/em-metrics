@@ -84,7 +84,9 @@ describe('Deployments', () => {
 				config.init({
 					teams: {
 						'test-team': {
-							users: ['user-1']
+							users: [{
+								github_username: 'user-1'
+							}]
 						}
 					}
 				});
@@ -282,7 +284,6 @@ describe('Deployments', () => {
 						create_if_not_exists: false,
 					}
 				}).then(response => {
-					console.log(response.body)
 					expect(response.statusCode).to.be.eql(200);
 
 					expect(deployment_frequency_stub.calledOnce).to.be.true;
