@@ -86,9 +86,9 @@ class Teams {
 		return undefined;
 	};
 
-	is_user_valid(username) {
-		const github_user = this.users_by_github_username.has(username);
-		const email_user = this.users_by_email.has(username);
+	is_user_valid({ github_username, email }) {
+		const github_user = this.users_by_github_username.has(github_username);
+		const email_user = this.users_by_email.has(email);
 
 		return github_user || email_user;
 	}
