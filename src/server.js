@@ -50,15 +50,19 @@ const create_server = (config={}) => {
 			return reply.status(403).send(error.message);
 		}
 
-		if(error instanceof ValidationError) {
-			return reply.status(400).send({
-				errors: error.errors
-			});
-		}
-
 		if(error instanceof DoesNotExist) {
 			return reply.status(404).send({
 				error: error.message
+			});
+		}
+
+		// This will throw 400 if we have an internal validation error
+		// So we'll log it to sentry too
+		if(error instanceof ValidationError) {
+			Sentry.captureException(error);
+
+			return reply.status(400).send({
+				errors: error.errors
 			});
 		}
 
