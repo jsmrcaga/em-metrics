@@ -6,6 +6,8 @@ node_modules/
 **/*.tfplan
 **/*.tfstate*
 
+tf/*/assets
+
 **/aws.cred
 
 **/.next

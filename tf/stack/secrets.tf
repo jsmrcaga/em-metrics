@@ -29,3 +29,13 @@ resource kubernetes_secret_v1 linear_secret {
     "LINEAR_SECRET" = var.secrets.linear_secret
   }
 }
+
+resource kubernetes_secret_v1 env_secrets {
+ metadata {
+    name = "env-secrets"
+    namespace = local.namespace
+  }
+
+  type = "control.jocolina.com/secrets"
+  data = var.env_secrets
+}

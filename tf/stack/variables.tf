@@ -98,6 +98,12 @@ variable secrets {
   sensitive = true
 }
 
+variable env_secrets {
+  type = map(string)
+  default = {}
+  sensitive = true
+}
+
 variable config {
   type = map(any)
   default = null
