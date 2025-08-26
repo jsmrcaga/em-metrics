@@ -42,11 +42,17 @@ class PullRequestReviewEvent extends GithubEventHandler {
 			full_repo,
 			pr_nb,
 			review_id,
-		}).then(nb_comments => {
+		}).then(comments => {
+			if(comments.every(comment => Boolean(comment.in_reply_to_id))) {
+				// This "review" is only a reply
+				// GitHub treats replies as a review itself
+				// So it's safe to drop "only replies"
+			}
+
 			return PullRequest.reviewed(pull_request_id, {
 				approved: state === 'approved',
 				reviewed_at: submitted_at,
-				nb_comments
+				nb_comments: comments?.length || 0
 			});
 		});
 	}

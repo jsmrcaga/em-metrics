@@ -39,7 +39,7 @@ describe('GitHub', () => {
 			});
 
 			return client.get_review_comments({ full_repo: 'plip/plep', pr_nb: '123423112', review_id: 9876 }).then((response) => {
-				expect(response).to.be.eql(1);
+				expect(response).to.be.eql([{ id: 'fake-comment' }]);
 
 				expect(raw_request_stub.firstCall.args[0]).to.be.eql(`/app/installations/${INSTALLATION_ID}/access_tokens`);
 				expect(raw_request_stub.secondCall.args[0]).to.be.eql('/repos/plip/plep/pulls/123423112/reviews/9876/comments');
@@ -54,11 +54,11 @@ describe('GitHub', () => {
 			});
 
 			raw_request_stub.onCall(0).callsFake(() => {
-				return Promise.resolve({ data: [{ id: 'fake-comment' }] });
+				return Promise.resolve({ data: [{ id: 'fake-comment-2' }] });
 			});
 
 			return client.get_review_comments({ full_repo: 'plip/plep', pr_nb: '123423112', review_id: 9876 }).then((response) => {
-				expect(response).to.be.eql(1);
+				expect(response).to.be.eql([{ id: 'fake-comment-2' }]);
 
 				expect(raw_request_stub.firstCall.args[0]).to.be.eql('/repos/plip/plep/pulls/123423112/reviews/9876/comments');
 			});
@@ -77,11 +77,11 @@ describe('GitHub', () => {
 			});
 
 			raw_request_stub.onCall(1).callsFake(() => {
-				return Promise.resolve({ data: [{ id: 'fake-comment' }] });
+				return Promise.resolve({ data: [{ id: 'fake-comment-3' }] });
 			});
 
 			return client.get_review_comments({ full_repo: 'plip/plep', pr_nb: '123423112', review_id: 9876 }).then((response) => {
-				expect(response).to.be.eql(1);
+				expect(response).to.be.eql([{ id: 'fake-comment-3' }]);
 
 				expect(raw_request_stub.firstCall.args[0]).to.be.eql(`/app/installations/${INSTALLATION_ID}/access_tokens`);
 				expect(raw_request_stub.secondCall.args[0]).to.be.eql('/repos/plip/plep/pulls/123423112/reviews/9876/comments');
@@ -97,21 +97,22 @@ describe('GitHub', () => {
 			});
 
 			raw_request_stub.onCall(1).callsFake(() => {
-				return Promise.resolve({ data: [{ id: 'fake-comment' }] });
+				return Promise.resolve({ data: [{ id: 'fake-comment-4' }] });
 			});
 
 			raw_request_stub.onCall(2).callsFake(() => {
-				return Promise.resolve({ data: [{ id: 'fake-comment' }] });
+				return Promise.resolve({ data: [{ id: 'fake-comment-5' }] });
 			});
 
 			return client.get_review_comments({ full_repo: 'plip/plep', pr_nb: '123423112', review_id: 9876 }).then((response) => {
-				expect(response).to.be.eql(1);
+				expect(response).to.be.eql([{ id: 'fake-comment-4' }]);
 
 				expect(raw_request_stub.firstCall.args[0]).to.be.eql(`/app/installations/${INSTALLATION_ID}/access_tokens`);
 				expect(raw_request_stub.secondCall.args[0]).to.be.eql('/repos/plip/plep/pulls/123423112/reviews/9876/comments');
 
 				return client.get_review_comments({ full_repo: 'plip/plep', pr_nb: 'fake-pr-2', review_id: 'review-1' });
-			}).then(() => {
+			}).then((response2) => {
+				expect(response2).to.be.eql([{ id: 'fake-comment-5' }]);
 				expect(raw_request_stub.thirdCall.args[0]).to.be.eql('/repos/plip/plep/pulls/fake-pr-2/reviews/review-1/comments');
 			});
 		});
