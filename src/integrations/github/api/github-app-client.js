@@ -112,7 +112,7 @@ class GitHubAppClient {
 		return this.request(
 			`/repos/${full_repo}/pulls/${pr_nb}/reviews/${review_id}/comments`
 		).then(({ data: comments }) => {
-			return comments.length;
+			return comments;
 		});
 	}
 }
