@@ -185,6 +185,24 @@ resource kubernetes_stateful_set_v1 em_metrics {
             name = "CONFIG"
             value = var.config == null ? "" : "/var/em-metrics-config/config.json"
           }
+
+          # Create env vars from master secret object
+          dynamic env {
+            for_each = var.env_secrets
+            iterator = env_secret
+
+            content {
+              name = env_secret.key
+
+              value_from {
+                secret_key_ref {
+                  key = env_secret.key
+                  name = kubernetes_secret_v1.env_secrets.metadata[0].name
+                  optional = false
+                }
+              }
+            }
+          }
         }
 
         image_pull_secrets {

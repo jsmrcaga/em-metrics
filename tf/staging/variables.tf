@@ -32,3 +32,14 @@ variable linear_secret {
   type = string
   sensitive = true
 }
+
+variable github {
+  type = object({
+    client_id = string
+    client_secret = string
+    webhook_secret = string
+    rsa_pem_b64 = string
+  })
+
+  sensitive = true
+}

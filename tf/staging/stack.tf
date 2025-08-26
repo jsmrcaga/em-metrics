@@ -29,6 +29,7 @@ module staging {
     DEV_ROUTES = true
     SENTRY_DSN = var.sentry.dsn
     APP_ENV = "staging"
+    GITHUB_CLIENT_ID = var.github.client_id
   }
 
   api_token = "staging-token"
@@ -51,5 +52,11 @@ module staging {
 
   secrets = {
     linear_secret = var.linear_secret
+  }
+
+  env_secrets = {
+    GITHUB_WEBHOOK_SECRET = var.github.webhook_secret
+    GITHUB_CLIENT_SECRET = var.github.client_secret
+    GITHUB_RSA_PEM_KEY_B64 = base64encode(file("${path.module}/${var.github.rsa_pem_b64}"))
   }
 }
