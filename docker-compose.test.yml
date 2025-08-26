@@ -1,6 +1,7 @@
 services:
   app:
     environment:
+      NODE_ENV: 'test'
       SQLITE_DB: ':memory:'
       CONFIG: ''
       GITHUB_ENDPOINT: 'https://fake.github.com'
