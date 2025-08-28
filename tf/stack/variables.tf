@@ -105,7 +105,7 @@ variable env_secrets {
 }
 
 variable config {
-  type = map(any)
+  type = any
   default = null
 }
 
