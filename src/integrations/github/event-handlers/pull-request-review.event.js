@@ -47,6 +47,7 @@ class PullRequestReviewEvent extends GithubEventHandler {
 				// This "review" is only a reply
 				// GitHub treats replies as a review itself
 				// So it's safe to drop "only replies"
+				return;
 			}
 
 			return PullRequest.reviewed(pull_request_id, {
