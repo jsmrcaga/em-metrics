@@ -40,7 +40,9 @@ const create_server = (config={}) => {
 
 	server.decorate('config', config);
 
-	server.get('/health', () => ({
+	server.get('/health', {
+		logLevel: 'silent'
+	}, () => ({
 		ok: true,
 	}));
 
