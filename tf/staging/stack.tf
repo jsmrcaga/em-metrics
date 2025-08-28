@@ -33,6 +33,7 @@ module staging {
   }
 
   api_token = "staging-token"
+  config = var.config
 
   docker = {
     username = var.docker.username
@@ -58,5 +59,9 @@ module staging {
     GITHUB_WEBHOOK_SECRET = var.github.webhook_secret
     GITHUB_CLIENT_SECRET = var.github.client_secret
     GITHUB_RSA_PEM_KEY_B64 = base64encode(file("${path.module}/${var.github.rsa_pem_b64}"))
+  }
+
+  pod_labels = {
+    "loki.grafana/scrape_logs" = "true"
   }
 }

@@ -43,3 +43,7 @@ variable github {
 
   sensitive = true
 }
+
+variable config {
+  type = any
+}
