@@ -38,6 +38,10 @@ class Logger {
 	}
 }
 
+// @todo: add level later as envvar
+const logger = new Logger();
+
 module.exports = {
-	Logger
+	Logger,
+	logger
 };

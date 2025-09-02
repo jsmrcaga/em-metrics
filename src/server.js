@@ -4,7 +4,7 @@ const Sentry = require('@sentry/node');
 
 const { DoesNotExist, ValidationError } = require('@jsmrcaga/sqlite3-orm');
 
-const { Logger } = require('./config/logger');
+const { Logger, logger } = require('./config/logger');
 const AjvFormats = require('./helpers/ajv/formats');
 const { BadAuthError } = require('./routing/auth/auths');
 
@@ -85,7 +85,7 @@ const create_server = (config={}) => {
 
 		Sentry.captureException(error);
 
-		Logger.log.error({ error });
+		logger.log.error({ error });
 		reply.status(500).send();
 	});
 
