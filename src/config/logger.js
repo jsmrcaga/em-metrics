@@ -2,7 +2,7 @@ const pino = require('pino');
 
 class Logger {
 	constructor({ level='info' }={}) {
-		const pino_options = this.constructor.get_pino_config();
+		const pino_options = this.constructor.get_pino_config({ level });
 		this.logger = pino(pino_options);
 	}
 
@@ -10,11 +10,11 @@ class Logger {
 		return this.logger;
 	}
 
-	static get_pino_config({ level='info' }={}) {
-		const should_log = process.env.NODE_ENV !== 'test';
-
+	static get_pino_config({
+		level='info'
+	}={}) {
 		let pino_options = {
-			level: should_log ? level : 'silent',
+			level: process.env.EM_METRICS_LOG_LEVEL || level,
 			errorKey: 'error',
 			formatters: {
 				level: (label) => ({ level: label })
