@@ -1,3 +1,5 @@
+const { logger } = require('../../../config/logger');
+
 const { PullRequest } = require('../../../models/pull-request');
 const { GithubEventHandler } = require('./github-event-handler');
 
@@ -14,14 +16,27 @@ class PullRequestReviewEvent extends GithubEventHandler {
 		return ['submitted'].includes(event.action);
 	}
 
-	static is_actor_allowed({ event, headers }) {
+	static is_actor_allowed({ teams, event, headers }) {
 		// Anyone can review a PR
 		// But we filter out reviews from the PR author themselves
 		if(event.review.user?.login === event.pull_request.user?.login) {
 			return false;
 		}
+
+		// Check the PR author, we don't want to track PR reviews for other teams
+		const github_username = event.pull_request.user.login;
+		const is_user_valid = teams.is_user_valid({
+			github_username
+		});
+
+		if(!is_user_valid) {
+			logger.log.info({
+				msg: 'Ignoring PR Review event. PR Author is not allowed',
+				github_username
+			});
+		}
 		
-		return true;
+		return is_user_valid;
 	}
 
 	handle(event, headers) {

@@ -329,6 +329,27 @@ describe('Webhooks - Github', () => {
 
 		describe('Ignored events', () => {
 
+			describe('Ignored users', () => {
+				it(`should ignore review events if the PR author is not accepted`, () => {
+					const event = get_pr_review_event('approved');
+
+					event.pull_request.user.login = 'user-not-allowed';
+
+					return server.inject({
+						path: '/webhooks/github',
+						method: 'POST',
+						payload: event,
+						headers: {
+							'X-Hub-Signature-256': 'asdasda',
+							'X-GitHub-Event': 'pull_request_review'
+						}
+					}).then(res => {
+						expect(res.statusCode).to.be.eql(200);
+						expect_metrics_ignored();
+					});
+				});
+			});
+
 			describe('Ignored actions', () => {
 				for(const event of ['dismissed', 'edited']) {
 					it(`should ignore review::${event} events`, () => {
@@ -495,6 +516,9 @@ describe('Webhooks - Github', () => {
 						payload: get_pr_review_event('approved', {
 							pull_request: {
 								id: PULL_REQUEST_ID,
+								user: {
+									login: 'jsmrcaga'
+								}
 							},
 							review: {
 								// PR opened at '2022-01-01T00:00:00.000Z'
@@ -537,6 +561,9 @@ describe('Webhooks - Github', () => {
 						payload: get_pr_review_event('approved', {
 							pull_request: {
 								id: PRE_REVIEWED_PR_ID,
+								user: {
+									login: 'jsmrcaga'
+								}
 							},
 							review: {
 								// PR opened at '2022-01-01T00:00:00.000Z'
