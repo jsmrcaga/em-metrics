@@ -34,7 +34,7 @@ variable linear_secret {
 }
 
 variable config {
-  type = map(any)
+  type = any
 }
 
 variable github {
