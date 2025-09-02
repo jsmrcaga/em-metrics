@@ -67,11 +67,6 @@ class GitHub {
 		});
 	}
 
-	#team_allowed(event) {
-		// Check teams and compare to config
-		return this.teams.is_user_valid({  });
-	}
-
 	handle(event, headers) {
 		const http_headers = new Headers(headers);
 		const event_type = this.#get_event_type(event, http_headers);

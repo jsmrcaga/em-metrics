@@ -4,30 +4,12 @@ const Sentry = require('@sentry/node');
 
 const { DoesNotExist, ValidationError } = require('@jsmrcaga/sqlite3-orm');
 
+const { Logger } = require('./config/logger');
 const AjvFormats = require('./helpers/ajv/formats');
 const { BadAuthError } = require('./routing/auth/auths');
 
 const create_server = (config={}) => {
-	const should_log = process.env.NODE_ENV !== 'test';
-	let pino_options = should_log ? {
-		errorKey: 'error',
-		formatters: {
-			level: (label) => ({ level: label })
-		},
-	} :  false ;
-
-	// Checking for pino_options re-checks that we are allowed to log
-	if(should_log && process.env.NODE_ENV !== 'production') {
-		pino_options = {
-			...pino_options,
-			transport: {
-				target: 'pino-pretty',
-				options: {
-					colorize: true
-				}
-			}
-		};
-	}
+	const pino_options = Logger.get_pino_config();
 
 	const server = fastify({
 		logger: pino_options,
