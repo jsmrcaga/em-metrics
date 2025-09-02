@@ -4,6 +4,9 @@ services:
       NODE_ENV: 'test'
       SQLITE_DB: ':memory:'
       CONFIG: ''
+      # Activate if erorrs not being logged in tests
+      # EM_METRICS_LOG_LEVEL: 'error'
+      EM_METRICS_LOG_LEVEL: 'silent'
       GITHUB_ENDPOINT: 'https://fake.github.com'
       GITHUB_CLIENT_ID: '12341234'
       GITHUB_CLIENT_SECRET: 'secret-secret'
