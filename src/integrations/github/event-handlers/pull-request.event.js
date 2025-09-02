@@ -1,3 +1,5 @@
+const { Logger } = require('../../../config/logger');
+
 const { PullRequest } = require('../../../models/pull-request');
 const { GithubEventHandler } = require('./github-event-handler');
 
@@ -9,9 +11,19 @@ class PullRequestEvent extends GithubEventHandler {
 	}
 
 	static is_actor_allowed({ teams, event, headers }) {
-		return teams.is_user_valid({
-			github_username: event.pull_request.user.login
+		const github_username = event.pull_request.user.login;
+		const is_user_valid = teams.is_user_valid({
+			github_username
 		});
+
+		if(!is_user_valid) {
+			Logger.log.info({
+				msg: 'Ignoring Pull Request event. User is not allowed',
+				github_username
+			});
+		}
+
+		return is_user_valid;
 	}
 
 	handle(event, headers) {
