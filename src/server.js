@@ -85,7 +85,7 @@ const create_server = (config={}) => {
 
 		Sentry.captureException(error);
 
-		console.error(error);
+		Logger.log.error({ error });
 		reply.status(500).send();
 	});
 

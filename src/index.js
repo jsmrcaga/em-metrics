@@ -2,6 +2,7 @@ require('./instrumentation/sentry');
 
 const { create_server } = require('./server');
 const { config } = require('./config');
+const { Logger } = require('./config/logger');
 const { default_db } = require('@jsmrcaga/sqlite3-orm');
 const { flush: flush_metrics } = require('./remote-metrics');
 
@@ -17,13 +18,13 @@ process.on('SIGTERM', () => {
 	});
 });
 
-process.on('uncaughException', (err) => {
-	console.error(err);
+process.on('uncaughException', (error) => {
+	Logger.log.error({ error });
 	process.exit(1);
 });
 
-process.on('unhandledRejection', (err) => {
-	console.error(err);
+process.on('unhandledRejection', (error) => {
+	Logger.log.error({ error });
 	process.exit(1);
 });
 
@@ -37,6 +38,6 @@ if(require.main === module) {
 			port: process.env.PORT || 3000
 		})
 	}).then(interface => {
-		console.log('Listening on', interface);
+		Logger.log.info('Listening on', interface);
 	});
 }
