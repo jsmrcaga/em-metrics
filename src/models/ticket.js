@@ -1,7 +1,7 @@
 const Crypto = require('node:crypto');
 const { Model, DoesNotExist } = require('@jsmrcaga/sqlite3-orm');
 
-const { Logger } = require('../config/logger');
+const { logger } = require('../config/logger');
 
 const { ticket_count, time_per_ticket, ticket_estimation_changed, ticket_estimation_changed_negative } = require('../metrics/ticketing/ticketing');
 
@@ -130,7 +130,7 @@ class Ticket extends Model {
 		if(minutes_to_finish) {
 			time_per_ticket.record(minutes_to_finish, metric_labels);
 		} else {
-			Logger.log.info(`Could not determine time to finish ticket: ${this.id}`);
+			logger.log.info(`Could not determine time to finish ticket: ${this.id}`);
 		}
 	}
 

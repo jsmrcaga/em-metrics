@@ -1,4 +1,4 @@
-const { Logger } = require('../../../config/logger');
+const { logger } = require('../../../config/logger');
 
 const { PullRequest } = require('../../../models/pull-request');
 const { GithubEventHandler } = require('./github-event-handler');
@@ -17,7 +17,7 @@ class PullRequestEvent extends GithubEventHandler {
 		});
 
 		if(!is_user_valid) {
-			Logger.log.info({
+			logger.log.info({
 				msg: 'Ignoring Pull Request event. User is not allowed',
 				github_username
 			});
