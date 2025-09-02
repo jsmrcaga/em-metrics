@@ -18,26 +18,28 @@ class Teams {
 				}
 			}
 
-			// Used for User triggered actions via GitHub
-			for(const { github_username } of users) {
-				if(agg.teams_by_github_username.has(github_username)) {
-					agg.teams_by_github_username.get(github_username).push(team_name);
-				} else {
-					agg.teams_by_github_username.set(github_username, [team_name]);
-				}
-			}
-
 			// Used for User triggered actions via Linear or other email accounts
 			for(const user of users) {
 				const { email, github_username } = user;
-				if(agg.teams_by_email.has(email)) {
-					agg.teams_by_email.get(email).push(team_name);
-				} else {
-					agg.teams_by_email.set(email, [team_name]);
+				if(email) {
+					if(agg.teams_by_email.has(email)) {
+						agg.teams_by_email.get(email).push(team_name);
+					} else {
+						agg.teams_by_email.set(email, [team_name]);
+					}
+
+					agg.users_by_email.set(email, user);
 				}
 
-				agg.users_by_email.set(email, user);
-				agg.users_by_github_username.set(github_username, user);
+				if(github_username) {
+					if(agg.teams_by_github_username.has(github_username)) {
+						agg.teams_by_github_username.get(github_username).push(team_name);
+					} else {
+						agg.teams_by_github_username.set(github_username, [team_name]);
+					}
+
+					agg.users_by_github_username.set(github_username, user);
+				}
 			}
 
 			return agg;
@@ -87,8 +89,8 @@ class Teams {
 	};
 
 	is_user_valid({ github_username, email }) {
-		const github_user = this.users_by_github_username.has(github_username);
-		const email_user = this.users_by_email.has(email);
+		const github_user = Boolean(github_username && this.users_by_github_username.has(github_username));
+		const email_user = Boolean(email && this.users_by_email.has(email));
 
 		return github_user || email_user;
 	}
