@@ -35,7 +35,7 @@ const pull_request_loc_added = new Histogram('pull_request_loc_added', {
 	}
 });
 
-const pull_request_loc_removed = new Histogram('pull_request_loc_added', {
+const pull_request_loc_removed = new Histogram('pull_request_loc_removed', {
 	unit: 'lines of code',
 	advice: {
 		explicitBucketBoundaries: LoC_BUCKETS
