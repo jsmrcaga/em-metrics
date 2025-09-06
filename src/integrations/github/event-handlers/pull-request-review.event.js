@@ -1,3 +1,4 @@
+const { DoesNotExist } = require('@jsmrcaga/sqlite3-orm');
 const { logger } = require('../../../config/logger');
 
 const { PullRequest } = require('../../../models/pull-request');
@@ -41,11 +42,16 @@ class PullRequestReviewEvent extends GithubEventHandler {
 
 	handle(event, headers) {
 		// will always be submitted, but just to make sure
-		if(!event.action === 'submitted') {
+		if(event.action !== 'submitted') {
 			return Promise.resolve();
 		}
 
 		if(!ALLOWED_REVIEW_STATES.has(event.review?.state)) {
+			logger.log.info({
+				msg: 'Ignoring PR Review event. State is not allowed',
+				state: event.review?.state ?? "null/undefined"
+			});
+
 			return Promise.resolve();
 		}
 
@@ -62,14 +68,30 @@ class PullRequestReviewEvent extends GithubEventHandler {
 				// This "review" is only a reply
 				// GitHub treats replies as a review itself
 				// So it's safe to drop "only replies"
+				logger.log.info({
+					msg: 'Ignoring PR Review event. All comments are replies.'
+				});
 				return;
 			}
 
-			return PullRequest.reviewed(pull_request_id, {
+			return PullRequest.reviewed(pull_request_id.toString(), {
 				approved: state === 'approved',
 				reviewed_at: submitted_at,
 				nb_comments: comments?.length || 0
 			});
+		}).catch(error => {
+			if(error instanceof DoesNotExist) {
+				logger.log.error({
+					error,
+					msg: 'PR does not exist',
+					pull_request_id
+				});
+			} else {
+				// Possible error with comments
+				logger.log.error({ error });
+			}
+
+			throw error;
 		});
 	}
 }

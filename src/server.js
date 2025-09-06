@@ -74,6 +74,7 @@ const create_server = (config={}) => {
 		if(error.code === 'SQLITE_CONSTRAINT') {
 			// We might wanna know what happened
 			Sentry.captureException(error);
+			logger.log.error({ error });
 
 			return reply.status(400).send({
 				errors: [{
@@ -84,8 +85,8 @@ const create_server = (config={}) => {
 
 
 		Sentry.captureException(error);
-
 		logger.log.error({ error });
+
 		reply.status(500).send();
 	});
 
