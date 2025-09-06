@@ -1,4 +1,5 @@
 const Crypto = require('node:crypto');
+const { logger } = require('../../config/logger');
 const { InvalidSignatureError } = require('../common');
 
 const { PullRequest } = require('../../models/pull-request');
@@ -77,6 +78,12 @@ class GitHub {
 			installation_id,
 			client_id: this.client_id,
 			rsa_pem_key: this.#rsa_pem_key
+		});
+
+		logger.log.info({
+			msg: 'GitHub: handling new event',
+			event_type,
+			action,
 		});
 
 		return GitHubWebhookHandlers.handle({

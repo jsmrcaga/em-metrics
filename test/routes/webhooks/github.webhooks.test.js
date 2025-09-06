@@ -410,8 +410,8 @@ describe('Webhooks - Github', () => {
 						data: [1, 2, 3, 4]
 					});
 				});
-				GitHubAppClient.reset_cache();
 
+				GitHubAppClient.reset_cache();
 			});
 
 			describe('Review - Commented', () => {
