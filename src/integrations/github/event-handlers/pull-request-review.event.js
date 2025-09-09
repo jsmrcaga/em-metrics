@@ -10,6 +10,7 @@ const ALLOWED_REVIEW_STATES = new Set([
 	'commented'
 ]);
 
+
 class PullRequestReviewEvent extends GithubEventHandler {
 	static EVENT_NAME = 'pull_request_review';
 
@@ -64,7 +65,10 @@ class PullRequestReviewEvent extends GithubEventHandler {
 			pr_nb,
 			review_id,
 		}).then(comments => {
-			if(comments.every(comment => Boolean(comment.in_reply_to_id))) {
+			const all_comments_are_replies = comments.every(comment => Boolean(comment.in_reply_to_id));
+			const is_pr_commented = state === 'commented';
+
+			if(all_comments_are_replies && is_pr_commented) {
 				// This "review" is only a reply
 				// GitHub treats replies as a review itself
 				// So it's safe to drop "only replies"
