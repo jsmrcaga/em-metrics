@@ -125,7 +125,13 @@ const pull_request_nb_reviews_per_pr = new Histogram('pull_request_nb_reviews_pe
 	}
 });
 
+const commit_count = new Counter('commit', {
+	// Unit is empty because it gets appended to the metric name
+	unit: '',
+});
+
 module.exports = {
+	commit_count,
 	pull_request_opened_count,
 	pull_request_closed_count,
 	pull_request_merged_count,
