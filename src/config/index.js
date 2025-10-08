@@ -1,8 +1,11 @@
 const Ajv = require('ajv');
+
+const AjvFormats = require('../helpers/ajv/formats');
 const { Teams } = require('../teams/teams');
 
 const SCHEMA = {
 	type: 'object',
+	additionalProperties: false,
 	properties: {
 		teams: {
 			type: 'object',
@@ -56,11 +59,31 @@ const SCHEMA = {
 					}
 				}
 			}
+		},
+		version_control: {
+			type: 'object',
+			properties: {
+				commits: {
+					type: 'object',
+					properties: {
+						ai_author_emails: {
+							type: 'array',
+							items: {
+								type: 'string',
+								format: 'email'
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 };
 
-const validate = new Ajv().compile(SCHEMA);
+const ajv = new Ajv();
+AjvFormats(ajv);
+
+const validate = ajv.compile(SCHEMA);
 
 class Config {
 	static validate(data={}) {
@@ -88,6 +111,16 @@ class Config {
 
 	toJSON() {
 		return this.config;
+	}
+
+	get(path='') {
+		return path.split('.').reduce((current_obj, key) => {
+			if(!current_obj) {
+				return null;
+			}
+
+			return current_obj[key] || null;
+		}, this.config);
 	}
 
 	load(filename) {
