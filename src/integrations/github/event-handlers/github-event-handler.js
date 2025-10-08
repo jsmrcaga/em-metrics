@@ -1,9 +1,10 @@
 class GithubEventHandler {
 	static EVENT_NAME = null;
 
-	constructor({ teams, github_client }) {
+	constructor({ teams, github_client, config }) {
 		this.github_client = github_client;
 		this.teams = teams;
+		this.config = config;
 	}
 
 	static is_allowed(event, http_headers) {

@@ -15,10 +15,10 @@ class GitHubWebhookHandlers {
 		return this.#handlers.get(event_type).is_allowed({ teams, event, headers });
 	}
 
-	static handle({ teams, github_client }, { event_type, event, headers }) {
+	static handle({ teams, config, github_client }, { event_type, event, headers }) {
 		const HandlerClass = this.#handlers.get(event_type);
 
-		const handler = new HandlerClass({ github_client, teams });
+		const handler = new HandlerClass({ github_client, teams, config });
 		return handler.handle(event, headers);
 	}
 }

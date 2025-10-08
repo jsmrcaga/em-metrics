@@ -18,7 +18,8 @@ module.exports = (server, options, done) => {
 		webhook_secret: process.env.GITHUB_WEBHOOK_SECRET,
 		client_id: process.env.GITHUB_CLIENT_ID,
 		rsa_pem_key_b64: process.env.GITHUB_RSA_PEM_KEY_B64,
-		teams: server.config.teams
+		teams: server.config.teams,
+		config: server.config
 	});
 
 	// Will need to create one webhook per team
