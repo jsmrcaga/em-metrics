@@ -19,7 +19,7 @@ class GitHubAppClient {
 
 	// Used for testing
 	static reset_cache() {
-		INSTALLATION_TOKEN_CACHE.clear()
+		INSTALLATION_TOKEN_CACHE.clear();
 	}
 
 	static save_token_to_cache(installation_id, { token, expires_at }) {
@@ -108,11 +108,32 @@ class GitHubAppClient {
 		});
 	}
 
+	/**
+	 * Returns the Pull Request Review comments
+	 * @param {String} full_repo - The user/repo
+	 * @param {Number} pr_nb - The pull request number
+	 * @param {Number} review_id - The pull request review id
+	 */
 	get_review_comments({ full_repo, pr_nb, review_id }) {
 		return this.request(
 			`/repos/${full_repo}/pulls/${pr_nb}/reviews/${review_id}/comments`
 		).then(({ data: comments }) => {
 			return comments;
+		});
+	}
+
+	/**
+	 * Returns the Pull Request commits
+	 * @param {String} full_repo - The user/repo
+	 * @param {Number} pr_nb - The pull request number
+	 * @returns {Object[]} commits - The list of GitHub commits
+	 * @property {GitCommit} commits.commit - The base commit
+	 */
+	get_pull_request_commits({ full_repo, pr_nb }) {
+		return this.request(
+			`/repos/${full_repo}/pulls/${pr_nb}/commits`
+		).then(({ data: commits }) => {
+			return commits;
 		});
 	}
 }
