@@ -13,7 +13,52 @@ const {
 	pull_request_time_to_merge_minutes,
 } = require('../metrics/core4/pull-requests');
 
+/**
+ * @typedef {Object} GitCommit
+ * @property {Object} GitCommit.author - The base commit author
+ * @property {Object} GitCommit.author.name - The base commit author name
+ * @property {Object} GitCommit.author.email - The base commit author email
+ * @property {Object} GitCommit.committer - The base commit committer
+ * @property {Object} GitCommit.committer.name - The base commit committer name
+ * @property {Object} GitCommit.committer.email - The base commit committer email
+ */
+
+/**
+ * This class controls the commits of a pull request
+ */
+class Commits {
+	/**
+	 * @param {GitCommit[]} commits - The base GitCommits
+	 */
+	constructor(commits=[]) {
+		this.commits = commits;
+	}
+
+	compute_counts({ ai_author_emails=[] }) {
+		const ai_authors = new Set(ai_author_emails);
+
+		let human_commit_count = 0;
+		let ai_commit_count = 0;
+
+		for(const commit of this.commits) {
+			const { email } = commit.author;
+			if(ai_authors.has(email)) {
+				ai_commit_count += 1;
+			} else {
+				human_commit_count += 1;
+			}
+		}
+
+		return {
+			human_commit_count,
+			ai_commit_count
+		};
+	}
+}
+
 class PullRequest extends Model {
+	static Commits = Commits;
+
 	static TABLE_NAME = 'pull_requests';
 
 	// Deliberately chose not to include project_id
