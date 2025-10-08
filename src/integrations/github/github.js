@@ -15,11 +15,12 @@ class GitHub {
 	#installation_token = null;
 	#rsa_pem_key = null;
 
-	constructor({ webhook_secret, client_id, rsa_pem_key_b64, teams }) {
+	constructor({ webhook_secret, client_id, rsa_pem_key_b64, config, teams }) {
 		this.webhook_secret = webhook_secret;
 		this.client_id = client_id;
 
 		this.teams = teams;
+		this.config = config;
 
 		this.#rsa_pem_key = rsa_pem_key_b64 ? Buffer.from(rsa_pem_key_b64, 'base64').toString('utf8') : null;
 	}
@@ -88,6 +89,7 @@ class GitHub {
 
 		return GitHubWebhookHandlers.handle({
 			teams: this.teams,
+			config: this.config,
 			github_client
 		}, {
 			event,
