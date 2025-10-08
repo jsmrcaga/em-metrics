@@ -1,13 +1,26 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 
+const { Config } = require('../../src/config');
 const { create_server } = require('../../src/server');
 
 const { PullRequest } = require('../../src/models/pull-request');
 
-const server = create_server();
+const config = new Config();
+config.init({
+	version_control: {
+		commits: {
+			ai_author_emails: [
+				'copilot@github.com'
+			]
+		}
+	}
+});
+
+const server = create_server(config);
 
 const {
+	commit_count,
 	pull_request_opened_count,
 	pull_request_closed_count,
 	pull_request_merged_count,
@@ -22,6 +35,7 @@ const {
 
 describe('Pull Requests', () => {
 
+	let commit_count_stub;
 	let pull_request_opened_count_stub;
 	let pull_request_closed_count_stub;
 	let pull_request_merged_count_stub;
@@ -34,6 +48,7 @@ describe('Pull Requests', () => {
 	let pull_request_time_to_merge_minutes_stub;
 
 	beforeEach(() => {
+		commit_count_stub = sinon.stub(commit_count, 'add');
 		pull_request_opened_count_stub = sinon.stub(pull_request_opened_count, 'increment');
 		pull_request_closed_count_stub = sinon.stub(pull_request_closed_count, 'increment');
 		pull_request_merged_count_stub = sinon.stub(pull_request_merged_count, 'increment');
@@ -429,7 +444,24 @@ describe('Pull Requests', () => {
 				method: 'POST',
 				url: '/api/v1/pull-requests/pr-4/merged',
 				payload: {
-					merged_at: '2025-03-03T12:53:23.111Z'
+					merged_at: '2025-03-03T12:53:23.111Z',
+					commits: [{
+						author: {
+							email: 'test@example.com'
+						}
+					}, {
+						author: {
+							email: 'test@example.com'
+						}
+					}, {
+						author: {
+							email: 'copilot@example.com'
+						}
+					}, {
+						author: {
+							email: 'copilot@github.com'
+						}
+					},]
 				}
 			}).then(res => {
 				expect(res.statusCode).to.be.eql(200);
@@ -450,6 +482,10 @@ describe('Pull Requests', () => {
 				expect(pull_request_nb_reviews_per_pr_stub.firstCall.args).to.be.deep.eql([3, {
 					team_id: 'team-4'
 				}]);
+
+				expect(commit_count_stub.callCount).to.be.eql(2);
+				expect(commit_count_stub.firstCall.args).to.be.eql([3, { type: "human" }]);
+				expect(commit_count_stub.secondCall.args).to.be.eql([1, { type: "ai" }]);
 			});
 		});
 	});

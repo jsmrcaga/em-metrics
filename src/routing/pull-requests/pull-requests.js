@@ -74,14 +74,35 @@ module.exports = (server, options, done) => {
 				type: 'object',
 				properties: {
 					merged_at: { type: 'string' },
+					commits: {
+						type: 'array',
+						items: {
+							type: 'object',
+							properties: {
+								author: {
+									type: 'object',
+									properties: {
+										email: { type: 'string' }
+									}
+								}
+							}
+						}
+					}
 				},
 				required: []
 			}
 		}
 	}, (req, reply) => {
-		const { merged_at } = req.body;
+		const { merged_at, commits=[] } = req.body;
+		const commits_instance = new PullRequest.Commits(commits);
+		const { human_commit_count, ai_commit_count } = commits_instance.compute_counts({
+			ai_author_emails: server.config.get('version_control.commits.ai_author_emails')
+		});
+
 		return PullRequest.merged(req.params.id, {
 			merged_at,
+			human_commit_count,
+			ai_commit_count
 		});
 	});
 

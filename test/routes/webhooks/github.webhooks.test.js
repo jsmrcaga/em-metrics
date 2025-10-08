@@ -11,6 +11,7 @@ const { create_server } = require('../../../src/server');
 const { PullRequest } = require('../../../src/models/pull-request');
 
 const {
+	commit_count,
 	pull_request_opened_count,
 	pull_request_closed_count,
 	pull_request_merged_count,
@@ -44,6 +45,14 @@ describe('Webhooks - Github', () => {
 					github_username: 'jsmrcaga'
 				}]
 			}
+		},
+		version_control: {
+			commits: {
+				ai_author_emails: [
+					'copilot@github.com',
+					'claude@anthropic.com'
+				]
+			}
 		}
 	});
 
@@ -51,6 +60,7 @@ describe('Webhooks - Github', () => {
 
 	let github_api_stub;
 
+	let commit_count_stub;
 	let pull_request_opened_count_stub;
 	let pull_request_closed_count_stub;
 	let pull_request_merged_count_stub;
@@ -64,6 +74,7 @@ describe('Webhooks - Github', () => {
 
 	function expect_metrics_ignored() {
 		// validate prometheus events
+		expect(commit_count_stub.callCount).to.be.eql(0);
 		expect(pull_request_opened_count_stub.callCount).to.be.eql(0);
 		expect(pull_request_loc_added_stub.callCount).to.be.eql(0);
 		expect(pull_request_loc_removed_stub.callCount).to.be.eql(0);
@@ -82,6 +93,7 @@ describe('Webhooks - Github', () => {
 		github_validate_webhook_stub.callsFake(() => true);
 
 		// Prometheus
+		commit_count_stub = sinon.stub(commit_count, 'add');
 		pull_request_opened_count_stub = sinon.stub(pull_request_opened_count, 'increment');
 		pull_request_closed_count_stub = sinon.stub(pull_request_closed_count, 'increment');
 		pull_request_merged_count_stub = sinon.stub(pull_request_merged_count, 'increment');
@@ -214,6 +226,34 @@ describe('Webhooks - Github', () => {
 
 		describe('PR merged', () => {
 			beforeEach(() => {
+				github_api_stub.onCall(0).callsFake(() => {
+					return Promise.resolve({ data: { token: 'github-access-token', expires_at: '2054-01-01' }});
+				});
+
+				github_api_stub.onCall(1).callsFake(() => {
+					return Promise.resolve({
+						data: [{
+							commit: {
+								author: {
+									email: 'test@example.com',
+								}
+							}
+						}, {
+							commit: {
+								author: {
+									email: 'copilot@github.com',
+								}
+							}
+						}, {
+							commit: {
+								author: {
+									email: 'claude@anthropic.com',
+								}
+							}
+						},]
+					})
+				});
+
 				// create PR
 				const pr = new PullRequest({
 					id: PULL_REQUEST_ID,
@@ -255,6 +295,11 @@ describe('Webhooks - Github', () => {
 					expect(pull_request_time_to_merge_minutes_stub.firstCall.args).to.be.eql([1_440, { team_id: 'test-team' }]);
 					// We store the nb of reviews from the DB
 					expect(pull_request_nb_reviews_per_pr_stub.firstCall.args).to.be.eql([0, { team_id: 'test-team' }]);
+
+					// we store the nb of ai commits and human commits
+					expect(commit_count_stub.callCount).to.be.eql(2);
+					expect(commit_count_stub.firstCall.args).to.be.eql([1, { type: 'human' }]);
+					expect(commit_count_stub.secondCall.args).to.be.eql([2, { type: 'ai' }]);
 
 					expect(pull_request_closed_count_stub.callCount).to.be.eql(0);
 					expect(pull_request_nb_comments_per_review_stub.callCount).to.be.eql(0);
