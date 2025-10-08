@@ -1,6 +1,8 @@
+const { logger } = require('../config/logger');
 const { Model } = require('@jsmrcaga/sqlite3-orm');
 
 const {
+	commit_count,
 	pull_request_opened_count,
 	pull_request_closed_count,
 	pull_request_merged_count,
@@ -163,10 +165,16 @@ class PullRequest extends Model {
 		});
 	}
 
-	static merged(pr_id, { merged_at=new Date().toISOString() } = {}){
+	static merged(pr_id, { merged_at=new Date().toISOString(), human_commit_count=0, ai_commit_count=0 } = {}){
+		logger.log.info({
+			msg: 'Pull-Request: Marking PR as merged',
+			pr_id
+		});
+
 		let time_to_merge_minutes;
 		let nb_reviews;
 		let team_id;
+
 		return PullRequest.objects.get(pr_id).then(pr => {
 			const time_to_merge_ms = new Date(merged_at).getTime() - new Date(pr.opened_at).getTime();
 			time_to_merge_minutes = time_to_merge_ms / 1000 / 60;
@@ -189,6 +197,18 @@ class PullRequest extends Model {
 			pull_request_nb_reviews_per_pr.record(nb_reviews, {
 				team_id
 			});
+
+			if(human_commit_count) {
+				commit_count.add(human_commit_count, {
+					type: 'human'
+				});
+			}
+
+			if(ai_commit_count) {
+				commit_count.add(ai_commit_count, {
+					type: 'ai'
+				});
+			}
 		});
 	}
 }

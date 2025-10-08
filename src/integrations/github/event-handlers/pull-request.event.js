@@ -52,10 +52,32 @@ class PullRequestEvent extends GithubEventHandler {
 
 		if(action === 'closed') {
 			if(event.pull_request?.merged) {
+				logger.log.info({
+					msg: 'Pull-Request: Got PR merged event'
+				});
+
 				const { merged_at } = event.pull_request;
 
-				return PullRequest.merged(pull_request_id, {
-					merged_at
+				const { full_name: full_repo } = event.repository;
+				const { number: pr_nb } = event.pull_request;
+
+				return this.github_client.get_pull_request_commits({
+					full_repo,
+					pr_nb
+				}).then(commits => {
+					const base_commits = commits.map(commit => commit.commit);
+					const commits_instance = new PullRequest.Commits(base_commits);
+
+					const ai_author_emails = this.config.get('version_control.commits.ai_author_emails');
+					const { ai_commit_count, human_commit_count } = commits_instance.compute_counts({
+						ai_author_emails
+					});
+
+					return PullRequest.merged(pull_request_id, {
+						merged_at,
+						ai_commit_count,
+						human_commit_count
+					});
 				});
 			}
 
