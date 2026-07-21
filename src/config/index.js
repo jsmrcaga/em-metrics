@@ -22,7 +22,8 @@ const SCHEMA = {
 						items: {
 							type: 'object',
 							properties: {
-								email: { type: 'string' },
+								email: { type: 'array', items: { type: 'string' } },
+								emails: { type: 'lsit' },
 								github_username: { type: 'string' },
 								slack_member_id: { type: 'string' }
 							}

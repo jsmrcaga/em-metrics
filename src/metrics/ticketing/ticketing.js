@@ -16,7 +16,9 @@ const TICKET_MINUTE_BUCKETS = [
 	480, // 8h - full workday
 	1440, // 24h
 	2880, // 48h - 2 work days
-	4320 // 72h - 3 work days
+	4320, // 72h - 3 work days
+	7200, // 120h - 5 work days
+	Infinity
 ];
 
 const estimation_limits = new Array(26).fill(0).flatMap((_, i) => [-i, i]).sort((a, b) => a - b);

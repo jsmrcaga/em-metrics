@@ -1,7 +1,18 @@
+function aggregate_email({ teams_by_email, users_by_email, email }) {
+	if(email) {
+		if(agg.teams_by_email.has(email)) {
+			agg.teams_by_email.get(email).push(team_name);
+		} else {
+			agg.teams_by_email.set(email, [team_name]);
+		}
+
+		agg.users_by_email.set(email, user);
+	}
+}
+
 class Teams {
 	constructor(teams={}) {
 		this.teams = teams;
-
 		const {
 			teams_by_project,
 			teams_by_email,
@@ -20,15 +31,26 @@ class Teams {
 
 			// Used for User triggered actions via Linear or other email accounts
 			for(const user of users) {
-				const { email, github_username } = user;
+				// emails is for instances where users might have committed or created
+				// tickets with more than one email. Happens often when merging via
+				// the github UI for example
+				const { email, emails, github_username } = user;
 				if(email) {
-					if(agg.teams_by_email.has(email)) {
-						agg.teams_by_email.get(email).push(team_name);
-					} else {
-						agg.teams_by_email.set(email, [team_name]);
-					}
+					aggregate_email({
+						teams_by_email: agg.teams_by_email,
+						users_by_email: agg.users_by_email,
+						email
+					});
+				}
 
-					agg.users_by_email.set(email, user);
+				if(emails) {
+					for(const email of emails) {
+						aggregate_email({
+							teams_by_email: agg.teams_by_email,
+							users_by_email: agg.users_by_email,
+							email
+						});
+					}
 				}
 
 				if(github_username) {
@@ -98,4 +120,4 @@ class Teams {
 
 module.exports = {
 	Teams
-}
+};

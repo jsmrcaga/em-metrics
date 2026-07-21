@@ -1,3 +1,10 @@
+/**
+ * @typedef {Object} GitHubEventArgs - Necessary data for determining if the event is allowed
+ * @property {[Team]} teams - The teams defined in the config
+ * @property {Object} event - The webhook event
+ * @property {Object} headers - The HTTP headers from the request
+ */
+
 class GithubEventHandler {
 	static EVENT_NAME = null;
 
@@ -7,18 +14,29 @@ class GithubEventHandler {
 		this.config = config;
 	}
 
-	static is_allowed(event, http_headers) {
-		const action_allowed = this.is_action_allowed(event, http_headers);
-		const actor_allowed = this.is_actor_allowed(event, http_headers);
+	/**
+	 * Checks if the event is allowed
+	 * 
+	 * @param {GitHubEventArgs} args
+	 */
+	static is_allowed(args) {
+		const action_allowed = this.is_action_allowed(args);
+		const actor_allowed = this.is_actor_allowed(args);
 
 		return action_allowed && actor_allowed;
 	}
 
-	static is_action_allowed(event, http_headers) {
+	/**
+	 * @param {GitHubEventArgs} args
+	 */
+	static is_action_allowed(args) {
 		return true;
 	}
 
-	static is_actor_allowed(event, http_headers) {
+	/**
+	 * @param {GitHubEventArgs} args
+	 */
+	static is_actor_allowed(args) {
 		return true;
 	}
 
