@@ -9,6 +9,23 @@ before(() => {
 			migrations_directory: './src/models/migrations'
 		});
 
+		if(process.env.EM_METRICS_TEST_MIGRATION_LOGS) {
+			migrator.on('plan-complete', (...args) => {
+				console.log('MRIATION PLAN', ...args);
+			});
+			migrator.on('migrated-file', (...args) => {
+				console.log('MIGRATED FILE', ...args);
+			});
+
+			migrator.on('statement-error', (...args) => {
+				console.log('ERROR', ...args);
+			});
+
+			migrator.on('statement-complete', (...args) => {
+				console.log('STATEMENT', ...args);
+			});
+		}
+
 		return migrator.migrate();
 	});
 });
