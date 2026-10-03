@@ -77,13 +77,63 @@ describe('Ticketing', () => {
 				expect(ticket_count_stub.firstCall.args).to.deep.eql([{
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
 				}]);
 				expect(time_per_ticket_stub.callCount).to.eql(1);
 				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([95, {
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
+				}]);
+				expect(ticket_estimation_changed_stub.notCalled).to.be.true;
+			});
+		});
+
+		it('should create the ticket (custmomer support) as done and send ticket_count metric', () => {
+			const ticket = new Ticket({
+				id: 'fake-ticket-2',
+				team_id: 'team-1',
+				project_id: 'project-1',
+				actor_hash: 'fsdfsf',
+				ticket_type: 'maintenance',
+				current_estimation: 4,
+				finished_at: '2024-10-12T12:34:56.000Z',
+				started_at: '2024-10-12T11:00:33.123Z',
+				status: 'DONE',
+				is_customer_support: true,
+				customer_support_type: 'cs_type_1'
+			});
+
+			return Ticket.objects.all().then((tickets) => {
+				expect(tickets).to.have.length(0);
+				return ticket.handle_metrics_and_store();
+			}).then(() => {
+				return Ticket.objects.all();
+			}).then(tickets => {
+				expect(tickets).to.have.length(1);
+				expect(tickets[0].initial_estimation).to.eql(4);
+				expect(tickets[0].current_estimation).to.eql(4);
+				expect(tickets[0].final_estimation).to.be.null;
+
+				expect(ticket_count_stub.callCount).to.eql(1);
+				expect(ticket_count_stub.firstCall.args).to.deep.eql([{
+					team_id: 'team-1',
+					project_id: 'project-1',
+					ticket_type: 'maintenance',
+					customer_support_type: 'cs_type_1',
+					is_customer_support: true
+				}]);
+				expect(time_per_ticket_stub.callCount).to.eql(1);
+				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([95, {
+					team_id: 'team-1',
+					project_id: 'project-1',
+					ticket_type: 'maintenance',
+					customer_support_type: 'cs_type_1',
+					is_customer_support: true
 				}]);
 				expect(ticket_estimation_changed_stub.notCalled).to.be.true;
 			});
@@ -126,6 +176,35 @@ describe('Ticketing', () => {
 			});
 		});
 
+		it('should send metrics if updated to customer support', () => {
+			// changed BACKLOG -> DOING
+			// did not change estimation
+			const ticket = new Ticket({
+				id: 'fake-ticket-2',
+				team_id: 'team-1',
+				project_id: 'project-1',
+				actor_hash: 'fsdfsf',
+				ticket_type: 'maintenance',
+				current_estimation: 4,
+				status: 'DONE',
+				is_customer_support: true,
+				customer_support_type: 'plep'
+			});
+
+			return ticket.handle_metrics_and_store().then(() => {
+				expect(ticket_count_stub.callCount).to.eql(1);
+				expect(ticket_count_stub.firstCall.args).to.deep.eql([{
+					team_id: 'team-1',
+					project_id: 'project-1',
+					ticket_type: 'maintenance',
+					customer_support_type: 'plep',
+					is_customer_support: true
+				}]);
+				expect(time_per_ticket_stub.callCount).to.eql(0);
+				expect(ticket_estimation_changed_stub.notCalled).to.be.true;
+			});
+		});
+
 		it(`should send an estimation changed metric if estimation changed (-2)`,  () => {
 			// did not change estimation
 			const ticket = new Ticket({
@@ -146,7 +225,9 @@ describe('Ticketing', () => {
 				expect(ticket_estimation_changed_negative_stub.firstCall.args).to.deep.eql([2, {
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
 				}]);
 			});
 		});
@@ -171,7 +252,9 @@ describe('Ticketing', () => {
 				expect(ticket_estimation_changed_stub.firstCall.args).to.deep.eql([+4, {
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
 				}]);
 			});
 		});
@@ -195,12 +278,16 @@ describe('Ticketing', () => {
 				expect(ticket_count_stub.firstCall.args).to.deep.eql([{
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
 				}]);
 				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([95, {
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false,
 				}]);
 				expect(ticket_estimation_changed_stub.notCalled).to.be.true;
 			});
@@ -225,18 +312,24 @@ describe('Ticketing', () => {
 				expect(ticket_count_stub.firstCall.args).to.deep.eql([{
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
 				}]);
 				expect(time_per_ticket_stub.firstCall.args).to.deep.eql([95, {
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
 				}]);
 				expect(ticket_estimation_changed_stub.callCount).to.eql(1);
 				expect(ticket_estimation_changed_stub.firstCall.args).to.deep.eql([4, {
 					team_id: 'team-1',
 					project_id: 'project-1',
-					ticket_type: 'maintenance'
+					ticket_type: 'maintenance',
+					customer_support_type: null,
+					is_customer_support: false
 				}]);
 			});
 		});

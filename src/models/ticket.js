@@ -27,14 +27,22 @@ class Ticket extends Model {
 		status: { type: 'string', default: () => 'BACKLOG' }, // BACKLOG, TODO, DOING, DONE, CANCELED, UNKNOWN
 		parent_ticket_id: { type: ['string', 'null'], default: () => null },
 
+		is_customer_support: { type: 'boolean', default: () => false },
+		customer_support_type: { type: ['string', 'null'], default: () => null },
+
 		initial_estimation: { type: ['number', 'null'], default: () => null },
 		current_estimation: { type: ['number', 'null'], default: () => null },
 		final_estimation: { type: ['number', 'null'], default: () => null },
 	};
 
-	static hash_actor_email(str) {
+	/**
+	 * Creates a sha256 hash from an email
+	 * @param {string} email - The email to hash
+	 * @return {string}
+	 */
+	static hash_actor_email(email) {
 		const sha256 = Crypto.createHash('sha256');
-		sha256.update(str);
+		sha256.update(email);
 		return sha256.digest('base64');
 	}
 
@@ -111,7 +119,9 @@ class Ticket extends Model {
 		return {
 			team_id: this.team_id,
 			project_id: this.project_id,
-			ticket_type: this.ticket_type
+			ticket_type: this.ticket_type,
+			customer_support_type: this.customer_support_type,
+			is_customer_support: this.is_customer_support
 		};
 	}
 
