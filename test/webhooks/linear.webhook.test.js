@@ -44,7 +44,9 @@ const DEFAULT_LINEAR_PAYLOAD = {
 const DEFAULT_METRIC_LABELS = {
 	team_id: 'TEAM',
 	project_id: 'Project 1',
-	ticket_type: 'unknown'
+	ticket_type: 'unknown',
+	customer_support_type: null,
+	is_customer_support: false
 };
 
 const call_webhook = (payload = DEFAULT_LINEAR_PAYLOAD) => {

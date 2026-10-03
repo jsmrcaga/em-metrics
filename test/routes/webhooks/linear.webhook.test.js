@@ -92,7 +92,9 @@ describe('Webhooks - Linear', () => {
 				const expected_labels = {
 					team_id: 'TST',
 					project_id: 'EM Metrics',
-					ticket_type: 'Boilerplate'
+					ticket_type: 'Boilerplate',
+					is_customer_support: false,
+					customer_support_type: null
 				};
 				// check that prometheus was called with label
 				expect(ticket_count_stub.firstCall.args[0]).to.be.eql(expected_labels);

@@ -34,6 +34,13 @@ const { InvalidSignatureError } = require('../common');
  * @property {string[]|null} [allow_list]
  */
 
+/**
+ * @typedef {Object} CustomerSupportTicketSelector
+ * @property {string|null} [team_key]
+ * @property {string[]|null} [label_ids_allow_list]
+ * @property {TicketTypeSelector} ticket_type_selector
+ */
+
 const LinearStatusMapping = {
 	triage: 'BACKLOG',
 	backlog: 'BACKLOG',
@@ -47,14 +54,17 @@ class Linear {
 	/**
 	 * @param {string} secret - Linear webhook secret
 	 * @param {TicketTypeSelector} ticket_type_selector
+	 * @param {CustomerSupportTicketSelector[]} customer_support_ticket_selectors
 	 */
 	constructor({
 		secret,
 		ignore_parent_issues=true,
 		ticket_type_selector = {},
+		customer_support_ticket_selectors = []
 	}) {
 		this.secret = secret;
 		this.ignore_parent_issues = ignore_parent_issues;
+		this.customer_support_ticket_selectors = customer_support_ticket_selectors;
 		this.ticket_type_selector = {
 			parent_label_id: ticket_type_selector.parent_label_id,
 			allow_list: ticket_type_selector.allow_list ? new Set(ticket_type_selector.allow_list) : null
@@ -72,6 +82,7 @@ class Linear {
 	 * Finds the ticket type from the Linear issue labels.
 	 * @param {TicketTypeSelector} ticket_type_selector
 	 * @param {LinearIssueLabel[]} labels
+	 * @return string
 	 */
 	static find_ticket_type(ticket_type_selector={}, labels=[]) {
 		const { allow_list, parent_label_id } = ticket_type_selector;
@@ -86,6 +97,39 @@ class Linear {
 
 		// allow_list
 		return labels.find(l => allow_list.has(l.id))?.name ?? 'unknown';
+	}
+
+	/**
+	 * Checks if a ticket is for customer support.
+	 * Every selector passed is considered an AND, and between them ORs
+	 * @param {CustomerSupportTicketSelector[]} customer_support_ticket_selectors
+	 * @param {LinearIssue} issue
+	 * @return {TicketTypeSelector|null} - null if it's not support
+	 */
+	static check_and_get_customer_support_selector(customer_support_ticket_selectors, issue) {
+		for(const selector of customer_support_ticket_selectors) {
+			const { team_key=null, label_ids_allow_list=[], ticket_type_selector } = selector;
+			// Check that all team_ids and all label_ids_allow_list match
+			if(team_key) {
+				if(issue.team?.key !== team_key) {
+					continue;
+				}
+			}
+
+			if(label_ids_allow_list.length) {
+				// Check that the issue has at least one label in the allow_list
+				const allowed_labels_set = new Set(label_ids_allow_list);
+				const issue_labels_set = new Set(issue.labels.map(({ id }) => id));
+
+				if(allowed_labels_set.intersection(issue_labels_set).size === 0) {
+					continue;
+				}
+			}
+
+			return ticket_type_selector;
+		}
+
+		return null;
 	}
 
 	validate_webhook(payload, headers) {
@@ -145,6 +189,9 @@ class Linear {
 				return null;
 			}
 
+			const customer_support_type_selector = this.constructor.check_and_get_customer_support_selector(this.customer_support_ticket_selectors, issue);
+			const customer_support_type = customer_support_type_selector ? this.constructor.find_ticket_type(customer_support_type_selector, issue.labels) : null;
+
 			return Ticket.build({
 				id: issue.identifier,
 				team_id: issue.team.key,
@@ -153,6 +200,8 @@ class Linear {
 				started_at: issue.startedAt ?? null,
 				finished_at: issue.completedAt,
 				actor_email: issue.assignee?.email ?? '',
+				is_customer_support: !!customer_support_type_selector,
+				customer_support_type,
 				ticket_type: this.constructor.find_ticket_type(this.ticket_type_selector, issue.labels),
 				status: this.constructor.map_workflow_to_ticket_status(issue.state.type),
 				current_estimation: issue.estimate,
