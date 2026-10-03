@@ -16,6 +16,6 @@ jobs:
           echo "${{ github.ref_name }}" | grep -P "^v\d+(\.\d+(\.\d+)?)?$" \
             || (echo "::error ::Unexpected version ${{ github.ref_name }}" && exit 1)
       - name: Create kube cluster access config
-        run: echo ${{ secrets.KUBE_CLUSTER_B64 }} | base64 --decode >> /tmp/kube.yml
+        run: echo ${{ secrets.KUBE_CLUSTER_B64_PROD }} | base64 --decode >> /tmp/kube.yml
       - name: Update image in statefulset
         run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-production sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ github.ref_name }}
