@@ -64,6 +64,6 @@ jobs:
 
     steps:
       - name: Create kube cluster access config
-        run: echo ${{ secrets.KUBE_CLUSTER_B64 }} | base64 --decode >> /tmp/kube.yml
+        run: echo ${{ secrets.KUBE_CLUSTER_B64_STAGING }} | base64 --decode >> /tmp/kube.yml
       - name: Update image in statefulset
         run: kubectl --kubeconfig /tmp/kube.yml set image -n em-metrics-staging sts/em-metrics em-metrics=ghcr.io/jsmrcaga/em-metrics:${{ github.ref_name }}
