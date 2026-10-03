@@ -75,7 +75,9 @@ describe('Integrations - Linear', () => {
 					initial_estimation: 4,
 					current_estimation: 4,
 					final_estimation: null,
-					parent_ticket_id: null
+					parent_ticket_id: null,
+					is_customer_support: false,
+					customer_support_type: null
 				});
 			});
 		});
@@ -209,6 +211,83 @@ describe('Integrations - Linear', () => {
 			}]);
 
 			expect(match).to.be.eql('1235');
+		});
+	});
+
+	describe('Customer support', () => {
+		describe('Checking if it\'s customer support', () => {
+			it('should not find any customer support if no selectors passed', () => {
+				const selector = Linear.check_and_get_customer_support_selector([], {
+					team: {
+						key: 'Team'
+					},
+					labels: []
+				});
+
+				expect(selector).to.be.null;
+			});
+
+			it('should (not)find a customer support selector from only the team key', () => {
+				const ticket_type_selector = {};
+				const selector = Linear.check_and_get_customer_support_selector([{
+					team_key: 'TEA',
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: []
+				});
+
+				expect(selector).to.be.eq(ticket_type_selector);
+
+				const wrong_selector = Linear.check_and_get_customer_support_selector([{
+					team_key: 'TEA',
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEAM-2'
+					},
+					labels: []
+				});
+
+				expect(wrong_selector).to.be.null;
+			});
+
+			it('should (not)find a customer support selector from the team key AND a label', () => {
+				const ticket_type_selector = {};
+				const selector = Linear.check_and_get_customer_support_selector([{
+					team_key: 'TEA',
+					label_ids_allow_list: ['LABEL1', 'LABEL2'],
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: [{
+						id: 'LABEL1'
+					}, {
+						id: 'LABEL3'
+					}]
+				});
+
+				expect(selector).to.be.eq(ticket_type_selector);
+
+				const wrong_selector = Linear.check_and_get_customer_support_selector([{
+					team_key: 'TEA',
+					label_ids_allow_list: ['LABEL1', 'LABEL2'],
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: [{
+						id: 'LABEL45'
+					}]
+				});
+
+				expect(wrong_selector).to.be.null;
+			});
 		});
 	});
 });
