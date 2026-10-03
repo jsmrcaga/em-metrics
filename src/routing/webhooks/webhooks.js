@@ -11,6 +11,7 @@ module.exports = (server, options, done) => {
 		secret: process.env.LINEAR_SECRET,
 		ignore_parent_issues: server.config?.config?.ticketing?.linear?.ignore_parent_issues,
 		ticket_type_selector: server.config?.config?.ticketing?.linear?.ticket_type_selector,
+		customer_support_ticket_selectors: server.config?.config?.ticketing?.linear?.customer_support_ticket_selectors,
 	});
 
 	const github = new GitHub({

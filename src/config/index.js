@@ -3,7 +3,29 @@ const Ajv = require('ajv');
 const AjvFormats = require('../helpers/ajv/formats');
 const { Teams } = require('../teams/teams');
 
+const LINEAR_SCHEMAS = {
+	$id: 'http://schema.jocolina.com/schemas/linear.json',
+	definitions: {
+		ticket_type_selector: {
+			type: 'object',
+			properties: {
+				parent_label_id: { type: ['string', 'null'] },
+				allow_list: {
+					type: 'array',
+					items: { type: 'string' }
+				}
+			},
+			anyOf: [
+				{ required: ["parent_label_id"] },
+				{ required: ["allow_list"] }
+			]
+		}
+	},
+};
+
 const SCHEMA = {
+	// Nice catch: if no ID here, $ref reference is broken
+	$id:'http://schema.jocolina.com/schemas/config.json',
 	type: 'object',
 	additionalProperties: false,
 	properties: {
@@ -43,19 +65,25 @@ const SCHEMA = {
 					properties: {
 						ignore_parent_issues: { type: 'boolean' },
 						ticket_type_selector: {
-							type: 'object',
-							properties: {
-								parent_label_id: { type: ['string', 'null'] },
-								allow_list: {
-									type: 'array',
-									items: { type: 'string' }
-								}
-							},
-							anyOf: [
-								{ required: ["parent_label_id"] },
-								{ required: ["allow_list"] }
-							]
+							$ref: 'linear.json#/definitions/ticket_type_selector'
 						},
+						customer_support_ticket_selectors: {
+							type: 'array',
+							items: {
+								type: 'object',
+								required: ['ticket_type_selector'],
+								properties: {
+									team_key: { type: 'string' },
+									label_ids_allow_list: {
+										type: 'array',
+										items: { type: 'string' }
+									},
+									ticket_type_selector: {
+										$ref: 'linear.json#/definitions/ticket_type_selector'
+									},
+								}
+							}
+						}
 					}
 				}
 			}
@@ -83,7 +111,7 @@ const SCHEMA = {
 const ajv = new Ajv();
 AjvFormats(ajv);
 
-const validate = ajv.compile(SCHEMA);
+const validate = ajv.addSchema(LINEAR_SCHEMAS).compile(SCHEMA);
 
 class Config {
 	static validate(data={}) {
