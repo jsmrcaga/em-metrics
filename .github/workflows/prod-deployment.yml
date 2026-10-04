@@ -8,6 +8,8 @@ jobs:
     name: Deploy to production
     runs-on: ubuntu-22.04
 
+    environment: production
+
     steps:
       - name: Test version name ${{ github.ref_name }}
         shell: bash
