@@ -227,6 +227,20 @@ describe('Integrations - Linear', () => {
 				expect(selector).to.be.null;
 			});
 
+			it('should find any customer support if empty selector conditions passed', () => {
+				const ticket_type_selector = {};
+				const selector = Linear.check_and_get_customer_support_selector([{
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'Team'
+					},
+					labels: []
+				});
+
+				expect(selector).to.be.eql(ticket_type_selector);
+			});
+
 			it('should (not)find a customer support selector from only the team key', () => {
 				const ticket_type_selector = {};
 				const selector = Linear.check_and_get_customer_support_selector([{
@@ -288,6 +302,104 @@ describe('Integrations - Linear', () => {
 
 				expect(wrong_selector).to.be.null;
 			});
+
+			it('should find a customer support selector from only the parent label id', () => {
+				const ticket_type_selector = {};
+				const selector = Linear.check_and_get_customer_support_selector([{
+					parent_label_id_allow_list: ['parent_id_1'],
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: [{
+						id: 'label-1',
+						parentId: 'parent_id_1'
+					}]
+				});
+
+				expect(selector).to.be.eq(ticket_type_selector);
+			});
+
+			it('should not find a customer support selector if the the parent label id and labels do not match', () => {
+				const ticket_type_selector = {};
+				const selector = Linear.check_and_get_customer_support_selector([{
+					parent_label_id_allow_list: ['parent_id_1'],
+					label_ids_allow_list: ['label-2'],
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: [{
+						id: 'label-1',
+						parentId: 'parent_id_1'
+					}]
+				});
+
+				expect(selector).to.be.eq(null);
+
+				const selector_2 = Linear.check_and_get_customer_support_selector([{
+					parent_label_id_allow_list: ['parent_id_2'],
+					label_ids_allow_list: ['label-2'],
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: [{
+						id: 'label-2',
+						parentId: 'parent_id_1'
+					}]
+				});
+
+				expect(selector_2).to.be.eq(null);
+			});
+
+			it('should find a customer support selector from team key, parent label id, and label allow_list', () => {
+				const ticket_type_selector = {};
+				const selector = Linear.check_and_get_customer_support_selector([{
+					team_key: 'TEA',
+					parent_label_id_allow_list: ['parent_id_1'],
+					label_ids_allow_list: ['label-1'],
+					ticket_type_selector
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: [{
+						id: 'label-1',
+						parentId: 'parent_id_1'
+					}]
+				});
+
+				expect(selector).to.be.eq(ticket_type_selector);
+			});
+
+
+			it('should find a customer support selector if one selector matches', () => {
+				const ticket_type_selector = {};
+				const ticket_type_selector_2 = {};
+
+				const selector = Linear.check_and_get_customer_support_selector([{
+					parent_label_id_allow_list: ['parent_id_no_match'],
+					ticket_type_selector,
+				}, {
+					parent_label_id_allow_list: ['parent_id_1'],
+					ticket_type_selector: ticket_type_selector_2
+				}], {
+					team: {
+						key: 'TEA'
+					},
+					labels: [{
+						id: 'label-1',
+						parentId: 'parent_id_1'
+					}]
+				});
+
+				expect(selector).to.be.eq(ticket_type_selector_2);
+			});
+
 		});
 	});
 });

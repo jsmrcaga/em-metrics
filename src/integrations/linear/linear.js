@@ -108,10 +108,20 @@ class Linear {
 	 */
 	static check_and_get_customer_support_selector(customer_support_ticket_selectors, issue) {
 		for(const selector of customer_support_ticket_selectors) {
-			const { team_key=null, label_ids_allow_list=[], ticket_type_selector } = selector;
+			const { team_key=null, parent_label_id_allow_list=[], label_ids_allow_list=[], ticket_type_selector } = selector;
 			// Check that all team_ids and all label_ids_allow_list match
 			if(team_key) {
 				if(issue.team?.key !== team_key) {
+					continue;
+				}
+			}
+
+			if(parent_label_id_allow_list.length) {
+				// check that at least 1 label of the issue is parent-allowed
+				const allowed_parent_ids = new Set(parent_label_id_allow_list);
+				const parent_ids = new Set(issue.labels.map(({ parentId }) => parentId))
+
+				if(allowed_parent_ids.intersection(parent_ids).size === 0) {
 					continue;
 				}
 			}
