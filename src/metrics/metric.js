@@ -15,6 +15,8 @@ class Metric {
 
 	static METRIC_TYPE = METRIC_TYPES.COUNTER;
 
+	static LABELS_SCHEMA = null;
+
 	static get_instrument(name, options={}) {
 		switch(this.METRIC_TYPE) {
 			case METRIC_TYPES.COUNTER:
@@ -26,6 +28,10 @@ class Metric {
 			default:
 				throw new Error(`Unknown metric type: ${this.METRIC_TYPE}`);
 		}
+	}
+
+	static get_schema() {
+		// parse ajv from LABELS_SCHEMA
 	}
 
 	constructor(name, options) {
