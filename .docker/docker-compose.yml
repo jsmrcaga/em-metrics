@@ -1,7 +1,8 @@
 services:
   app:
     build:
-      context: .
+      context: ..
+      dockerfile: ./.docker/Dockerfile
       args:
         NODE_ENV: development
 
@@ -19,7 +20,7 @@ services:
     command: npx nodemon src/index.js
 
     volumes:
-      - .:/app
+      - ..:/app
       - /app/node_modules
 
     depends_on:
@@ -64,4 +65,4 @@ services:
     command: run --server.http.listen-addr 0.0.0.0:12345 /etc/alloy/config.alloy
 
     volumes:
-      - ./.docker/alloy/config.alloy:/etc/alloy/config.alloy
+      - ./alloy/config.alloy:/etc/alloy/config.alloy

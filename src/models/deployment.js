@@ -61,7 +61,7 @@ class Deployment extends Model {
 		}).then(deployment => {
 			// record deployment duration, usually CI
 			const duration = new Date(deployment.deployed_at).getTime() - new Date(deployment.deploy_start_at).getTime();
-			deployment_duration.record(duration, {
+			deployment_duration.record(duration / 1000 / 60, {
 				project_id: deployment.project_id,
 				team_id
 			});
@@ -73,7 +73,7 @@ class Deployment extends Model {
 			});
 			// record lead_time_for_changes with 1st commit at
 			const ltfc = new Date(deployment.deployed_at).getTime() - new Date(deployment.first_commit_at).getTime();
-			lead_time_for_changes.record(ltfc, {
+			lead_time_for_changes.record(ltfc / 1000 / 60, {
 				project_id: deployment.project_id,
 				team_id
 			});

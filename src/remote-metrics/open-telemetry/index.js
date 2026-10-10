@@ -16,7 +16,7 @@ const periodic_reader = new PeriodicExportingMetricReader({
 });
 
 const flush = () => {
-	return periodic_reader.flush();
+	return periodic_reader.forceFlush();
 };
 
 const environment = process.env.DEPLOYMENT_ENVIRONMENT || 'NO_ENV';

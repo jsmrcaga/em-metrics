@@ -84,7 +84,7 @@ class Incident extends Model {
 				// we know deployment exists because of the FK constraint
 				return Deployment.objects.get(incident.deployment_id).then(deployment => {
 					const ttd = new Date(deployment.deployed_at).getTime() - new Date(incident.started_at).getTime();
-					time_to_detect.record(ttd, {
+					time_to_detect.record(ttd / 1000 / 60, {
 						project_id: incident.project_id
 					});
 				});
@@ -95,7 +95,7 @@ class Incident extends Model {
 	static #handle_resolution(incident) {
 		// - record ttr
 		const ttr = new Date(incident.restored_at).getTime() - new Date(incident.started_at).getTime();
-		time_to_restore.record(ttr, {
+		time_to_restore.record(ttr / 1000 / 60, {
 			project_id: incident.project_id,
 		});
 
